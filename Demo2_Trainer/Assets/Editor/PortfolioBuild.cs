@@ -97,8 +97,8 @@ public static class PortfolioBuild
         }
         if (Mathf.Abs(peak - .23f) > .012f) throw new Exception("Bounce check outside 1.2 cm tolerance: " + peak);
         Vector3 noSpin = new Vector3(0, -2, 1), withSpin = noSpin, zero = Vector3.zero, rotation = Vector3.right * 250;
-        BallPhysics.Contact(ref noSpin, ref zero, Vector3.up, Vector3.zero, .896f, .16f);
-        BallPhysics.Contact(ref withSpin, ref rotation, Vector3.up, Vector3.zero, .896f, .16f);
+        BallPhysics.Contact(ref noSpin, ref zero, Vector3.up, Vector3.zero, BallPhysics.TableRestitution, BallPhysics.TableFriction);
+        BallPhysics.Contact(ref withSpin, ref rotation, Vector3.up, Vector3.zero, BallPhysics.TableRestitution, BallPhysics.TableFriction);
         if ((noSpin - withSpin).magnitude < .05f) throw new Exception("Spin did not affect bounce.");
         bool swept = BallPhysics.SweptPaddle(new Vector3(0, 0, .3f), new Vector3(0, 0, -.3f), Vector3.zero, Vector3.zero, Quaternion.identity, Quaternion.identity, out _, out _);
         if (!swept) throw new Exception("High-speed sweep missed the racket.");

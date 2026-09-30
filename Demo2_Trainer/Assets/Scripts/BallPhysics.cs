@@ -6,10 +6,12 @@ namespace PortfolioTrainer
     public static class BallPhysics
     {
         public const float Mass = 0.0027f, Radius = 0.02f, Gravity = 9.80665f;
-        public const float AirDensity = 1.225f, DragCoefficient = 0.47f;
-        public const float TableRestitution = 0.896f, FloorRestitution = 0.55f;
-        public const float PaddleRestitution = 0.82f, TableFriction = 0.16f, PaddleFriction = 0.35f;
+        public const float AirDensity = 1.225f, DragCoefficient = 0.55f;
+        public const float TableRestitution = 0.918f, FloorRestitution = 0.55f;
+        public const float TableFriction = 0.25f, PaddleFriction = 0.35f;
         public const float Step = 1f / 180f;
+        // Conti et al. 2026: fitted normal restitution 0.878 − 0.020 × impact speed.
+        public static float PaddleRestitutionAtSpeed(float speed) => Mathf.Clamp(.878f - .020f * speed, .2f, .95f);
         public static Vector3 Acceleration(Vector3 velocity, Vector3 spin, Vector3 wind, bool forces = true)
         {
             Vector3 result = Vector3.down * Gravity;

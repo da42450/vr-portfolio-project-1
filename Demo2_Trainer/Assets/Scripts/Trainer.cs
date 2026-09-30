@@ -107,8 +107,8 @@ namespace PortfolioTrainer
         {
             var backing = Mat(new Color(.92f, .97f, .96f));
             Cube("Readout board", new Vector3(2.4f, 1.7f, .06f), new Vector3(-2.05f, 1.65f, 2.15f), backing, false);
-            readout = Text("Ready", new Vector3(-2.05f, 2.12f, 2.1f), .020f);
-            validationText = Text("Bounce check: not run", new Vector3(-2.05f, 1.73f, 2.1f), .016f);
+            readout = Text("Ready", new Vector3(-2.05f, 2.19f, 2.1f), .017f);
+            validationText = Text("Bounce check: not run", new Vector3(-2.05f, 1.73f, 2.1f), .013f);
             Button("Feed on / off", new Vector3(-2.65f, 1.49f, 2.1f), ToggleFeed);
             Button("Speed", new Vector3(-1.48f, 1.49f, 2.1f), () => launchSpeed = launchSpeed < 6.5f ? launchSpeed + 1f : 3.5f);
             Button("Spin", new Vector3(-2.65f, 1.24f, 2.1f), () => spinRate = spinRate == 0 ? 40 : spinRate > 0 ? -40 : 0);
@@ -179,7 +179,7 @@ namespace PortfolioTrainer
                     Vector3 contact = Vector3.Lerp(oldPosition, position, fraction);
                     Vector3 faceVelocity = right.PoseVelocity + Vector3.Cross(right.AngularVelocity, contact - right.transform.position);
                     float speed = Mathf.Abs(Vector3.Dot(velocity - faceVelocity, normal));
-                    BallPhysics.Contact(ref velocity, ref spin, normal, faceVelocity, BallPhysics.PaddleRestitution, BallPhysics.PaddleFriction);
+                    BallPhysics.Contact(ref velocity, ref spin, normal, faceVelocity, BallPhysics.PaddleRestitutionAtSpeed(speed), BallPhysics.PaddleFriction);
                     position = contact + normal * .002f + velocity * dt * (1f - fraction);
                     audioSystem.Impact(contact, speed, "Paddle"); right.Haptic(speed / 18f); contactCooldown = .025f;
                     if (!hitPaddle) { hitPaddle = true; returns++; score += 10; }
