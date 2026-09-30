@@ -4,7 +4,7 @@ A 26.6 m wide, four-region warehouse with Receiving, Tools, Parts, and Shipping 
 
 ## Run and controls
 
-`npm start`; open `http://localhost:8080/Demo4_Hunt/`. On Quest use the eventual public HTTPS URL and Enter VR.
+`npm start`; open `http://localhost:8080/Demo4_Hunt/`. On Quest open the public HTTPS deployment below in the Quest browser and select Enter VR.
 
 - Left stick: smooth travel when selected.
 - Left trigger: commit the visible teleport arc when teleport is selected.
@@ -13,7 +13,7 @@ A 26.6 m wide, four-region warehouse with Receiving, Tools, Parts, and Shipping 
 - Left X: open the in-world settings menu. The dispatch landmark also opens it.
 - Desktop: WASD in smooth mode; floor click in teleport mode; drag empty background to look; Q/E turn; click stock to collect. M opens settings, L switches travel, R resets the hunt.
 
-Deployment: **pending public HTTPS URL**. Video: **pending your YouTube link**.
+Deployment: [GitHub Pages / WebXR](https://da42450.github.io/vr-portfolio-project-1/Demo4_Hunt/). Video: **pending your YouTube link**.
 
 ## Implementation and comfort
 
@@ -44,7 +44,7 @@ Shared shelf geometry/materials, no dynamic shadows, a bounded world and a small
 - All world assets are original procedural geometry. IDs, map size, speed presets, score and timer rules are authored design values.
 - Physical room-scale walking can enter a virtual wall; the collision bounds constrain artificial movement, not the user's real body. Quest's boundary still applies.
 - Desktop teleport is an inspection control; the Quest uses the curved controller ray and floor marker. The floor is flat.
-- On-device controller bindings, stereo vignette, teleport fade, height reset, and sustained headset frame rate must be checked before recording. Public deployment and video remain pending.
+- On-device controller bindings, stereo vignette, teleport fade, height reset, and sustained headset frame rate must be checked before recording. The personal video remains pending.
 
 ## Video proof (about 5 minutes)
 

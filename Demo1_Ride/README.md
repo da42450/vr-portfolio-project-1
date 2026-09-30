@@ -16,7 +16,7 @@ From the portfolio root, run `npm start`; open `http://localhost:8080/Demo1_Ride
 | H               | Toggle shadows                    |
 | Drag / wheel    | Look around / ground-view zoom    |
 
-Deployment: **pending public HTTPS URL**. Video: **pending your YouTube link**.
+Deployment: [GitHub Pages](https://da42450.github.io/vr-portfolio-project-1/Demo1_Ride/). This is a desktop WebGL demo, not immersive WebXR. Video: **pending your YouTube link**.
 
 ## How it works
 
@@ -37,7 +37,7 @@ Only one light casts shadows at a time: daylight directional at 1024², nighttim
 - All geometry and textures are original procedural assets. Speeds, dimensions and light strengths are scene-design values, not measurements of a real Ferris wheel.
 - Headset support is optional for this demo and is not implemented. This demo is intended for a desktop video.
 - The initial authored cabin had inward-facing wall normals because the cross-product operands and triangle winding were reversed. Checking the normal's dot product with the face's outward position found it. Both were reversed; `tests/graphics.test.mjs` now checks outward normals, winding and UV bounds. This is a real implementation correction you can explain. The separate leveling fault toggle is an injected diagnostic.
-- Deployment/video links are incomplete until supplied. Actual desktop frame rate depends on the machine and must be reported honestly.
+- The personal video link is still pending. Actual desktop frame rate depends on the machine and must be reported honestly.
 
 ## Video proof (about 4 minutes)
 

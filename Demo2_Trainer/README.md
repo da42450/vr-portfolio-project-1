@@ -16,9 +16,9 @@ adb install -r Builds/demo2-v1.0.apk
 adb shell am start -n com.danielaguilar.portfolio.spintrainer/com.unity3d.player.UnityPlayerGameActivity
 ```
 
-Alternatively drag the APK into Meta Quest Developer Hub or SideQuest. Launch it from Unknown Sources. Upload the APK as a **Release asset**, not a Git source file, after receiving the course repository.
+Alternatively drag the APK into Meta Quest Developer Hub or SideQuest. Launch it from Unknown Sources. The APK is published as a **Release asset**, not a Git source file. This Unity application is not a WebXR browser build.
 
-Release: **pending course repository / demo2-v1.0 Release**. Video: **pending your YouTube link**.
+Release: [demo2-v1.0](https://github.com/da42450/vr-portfolio-project-1/releases/tag/demo2-v1.0) · [download APK](https://github.com/da42450/vr-portfolio-project-1/releases/download/demo2-v1.0/demo2-v1.0.apk). Video: **pending your YouTube link**.
 
 ## Controls
 
@@ -52,7 +52,7 @@ The simulation owns the ball state explicitly rather than combining a custom sol
 
 See [PARAMETERS.md](PARAMETERS.md) for every sourced quantity, derived quantity and explicitly labeled assumption. The numerical benchmark is **23.004 cm**, the actual editor scene measurement **23.054 cm**, against the ITTF's approximately **23 cm** bounce for a **30 cm** drop. Run Bounce check on Quest and show this comparison. Spin-dependent bounce and high-speed segment detection also passed numerical checks.
 
-Known limits: constant approximate drag, bounded approximate lift, simple friction/rolling, a rigid elliptical paddle, no deformable rubber or measured brand-specific coefficients. The code is a real-time teaching model, not a professional predictive simulator. The automatic Unity Editor search index emitted an internal editor exception during play verification; the application scripts produced no runtime exception, and the scene's bounce routine completed. Actual Quest input/contact/audio, public Release, and compliant video are pending.
+Known limits: constant approximate drag, bounded approximate lift, simple friction/rolling, a rigid elliptical paddle, no deformable rubber or measured brand-specific coefficients. The code is a real-time teaching model, not a professional predictive simulator. The automatic Unity Editor search index emitted an internal editor exception during play verification; the application scripts produced no runtime exception, and the scene's bounce routine completed. Actual Quest input/contact/audio and compliant video are pending.
 
 ## Video proof (about 5 minutes)
 

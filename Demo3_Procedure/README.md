@@ -4,13 +4,13 @@ An arm's-reach WebXR trainer with eight explicit states. It uses controllers, no
 
 ## Run and controls
 
-`npm start` from the portfolio root; open `http://localhost:8080/Demo3_Procedure/`. Quest: open the eventual public HTTPS URL and select Enter VR.
+`npm start` from the portfolio root; open `http://localhost:8080/Demo3_Procedure/`. Quest: open the public HTTPS deployment below in the Quest browser and select Enter VR.
 
 Grip close to an object to hold it; release grip to release it. Trigger on a free hand selects the in-world signs/gauge. Once the body/nozzle are held, trigger squeezes the lever. Hold the extinguisher in one hand and the nozzle in the other. Pull the pin along its X axis. Aim low and sweep the nozzle across all three base regions. Release the nozzle before using the free hand to confirm completion.
 
 The H / Hint button and R / Reset button also exist in the world. Desktop buttons simulate the same events for inspection: confirm safety, hold body, check pressure, pull pin, hold nozzle, aim base, toggle spray, and move to the next sweep section. Space toggles spray; J steps through sweep sections; arrows adjust the nozzle continuously. Shift-drag chooses the left simulated hand. Desktop completion is **not** evidence of real VR manipulation.
 
-Deployment: **pending public HTTPS URL**. Video: **pending your YouTube link**.
+Deployment: [GitHub Pages / WebXR](https://da42450.github.io/vr-portfolio-project-1/Demo3_Procedure/). Video: **pending your YouTube link**.
 
 ## States and detection
 
@@ -37,7 +37,7 @@ Instructions, active-part highlights, a pressure dial, coverage feedback and a h
 - Geometry and textures are original. Pin travel, tether length, coverage time and fire size are clearly stated training-design settings, not manufacturer specifications.
 - A classroom interaction exercise, not certification or a substitute for workplace instruction. USFA advises evacuation if safety prerequisites are uncertain.
 - The pressure/inspection event assumes the supplied ABC tank is serviceable; the WATER tank tests wrong-part detection. No actual fire chemistry is simulated.
-- Public URL, headset manipulation/performance check, and personal video are pending. Controller pointing conventions must be verified on a Quest.
+- Headset manipulation/performance checks and the personal video are pending. Controller pointing conventions must be verified on a Quest.
 
 ## Video proof (about 5 minutes)
 

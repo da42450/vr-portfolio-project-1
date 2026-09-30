@@ -2,17 +2,17 @@
 
 ## Course repository (human setup required)
 
-In the class Discord, run `/accept portfolio-project-1 github:<your GitHub username>` and accept the GitHub invitation. The professor's bot creates the private repository; an unrelated personal repo cannot replace it. Give the resulting repository URL to your coding agent, or add it yourself as the local Git remote and push all milestone commits.
+The project is pushed to the supplied [public hosting repository](https://github.com/da42450/vr-portfolio-project-1). The rubric's professor-created private course repository is a separate requirement: confirm whether your submitted repository satisfies it. If not, in class Discord run `/accept portfolio-project-1 github:<your GitHub username>` and accept the GitHub invitation, then push the same milestone history to that repository as well. Keep the public repository for Pages hosting.
 
 ## Web hosting
 
-Run `npm run check`, `npm test`, then `node tools/package-web.mjs`. It copies **only** the three web demos and their shared runtime/vendor files to `web-release/`, without Unity source, APK, temporary logs, personal photos or `.git`. Publish that static directory through Cloudflare Pages or a public GitHub Pages repo. The professor accepts public HTTPS with no login. Keep it available through grading and the quiz; a temporary tunnel is not durable hosting.
+Public site: **https://da42450.github.io/vr-portfolio-project-1/**. GitHub Pages is configured to deploy through `.github/workflows/pages.yml` on every push to `main`. The workflow runs `npm test`, `npm run check` and `node tools/package-web.mjs`. The package copies **only** the three browser demos and their shared runtime/vendor files to `web-release/`, without Unity source, APK, temporary logs, personal photos or `.git`. Keep this public HTTPS site available through grading and the quiz.
 
-The web package includes `index.html`, `Shared/`, `Demo1_Ride/`, `Demo3_Procedure/`, `Demo4_Hunt/`, plus the explanatory Demo 2 landing page. After publishing, test each link in a signed-out desktop browser and the Quest browser. Replace all Deployment pending entries in the root/demo READMEs with the actual URLs. GitHub Actions Pages configuration is provided in `tools/github-pages.yml` if you choose a public mirror; put it in `.github/workflows/pages.yml` in that public repo only.
+The web package includes `index.html`, `Shared/`, `Demo1_Ride/`, `Demo3_Procedure/`, `Demo4_Hunt/`, plus the explanatory Demo 2 landing page with an APK link. Demos 3/4 are immersive WebXR; Demo 1 is desktop WebGL; Demo 2 is native Unity. Test the WebXR links in the Quest browser and select Enter VR. A desktop browser does not establish headset interaction or performance.
 
 ## APK release
 
-The built APK is `Demo2_Trainer/Builds/demo2-v1.0.apk` (ignored by Git). Install it and test on your Quest. Create the course repo's `demo2-v1.0` Release with the APK as an asset and the provided [release notes](Demo2_Trainer/RELEASE_NOTES.md). Confirm it installs from the downloaded Release asset. Replace the pending Release link in both READMEs. Rebuild/release after any code change.
+The built APK is `Demo2_Trainer/Builds/demo2-v1.0.apk` (ignored by Git), published in the [demo2-v1.0 Release](https://github.com/da42450/vr-portfolio-project-1/releases/tag/demo2-v1.0) with the provided [release notes](Demo2_Trainer/RELEASE_NOTES.md). Download that Release asset, install it and test on your Quest. If the course repository differs from this public repository, attach the same APK and notes to its Release too. Rebuild/release after any Unity code change.
 
 ## On-device checks
 
@@ -35,4 +35,4 @@ Read QUIZ_GUIDE.md and practice answering without notes. Final personalized quiz
 
 ## Final repository check
 
-Meaningful local milestones already exist. Push them to the course repo before **October 8, 2026, 11:59 pm America/New_York**. Confirm no Library, builds, APKs, logs or node_modules are tracked. Confirm all four folders have final video/deployment links, sources, controls and known issues. A single upload at the deadline is not a substitute for a clear development history.
+Meaningful milestones are pushed to the public repository. Confirm the required course repository also receives them before **October 8, 2026, 11:59 pm America/New_York**. Confirm no Library, builds, APKs, logs or node_modules are tracked. Confirm all four folders have final video/deployment links, sources, controls and known issues. A single upload at the deadline is not a substitute for a clear development history.
