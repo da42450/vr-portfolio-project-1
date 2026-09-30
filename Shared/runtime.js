@@ -1,4 +1,9 @@
 import * as THREE from "./vendor/three.module.js";
+import {
+  findGrabTarget,
+  resolvePointerTarget,
+  visibleInHierarchy,
+} from "./grab.js";
 export { THREE };
 export const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 export function material(color, extra = {}) {
@@ -78,10 +83,6 @@ export function panelButton(app, parent, text, pos, action, width = 1.1) {
   app.interactables.push(b);
   return b;
 }
-function visibleInHierarchy(o) {
-  for (let p = o; p; p = p.parent) if (!p.visible) return false;
-  return true;
-}
 export function room(app, size = 12) {
   app.scene.background = new THREE.Color("#b9d1da");
   app.scene.fog = new THREE.Fog("#b9d1da", 25, 65);
@@ -148,6 +149,7 @@ export class App {
         material(i === 0 ? "#f0bc45" : "#26a5a6"),
       );
       grip.add(orb);
+      grip.userData.marker = orb;
       this.hands.push(grip);
       const line = new THREE.Line(
         new THREE.BufferGeometry().setFromPoints([V(), V(0, 0, -4)]),
@@ -235,6 +237,7 @@ export class App {
       this.onXR?.(true);
     });
     this.renderer.xr.addEventListener("sessionend", () => {
+      for (let i = 0; i < 2; i++) this.release(i);
       document.querySelector("#hud").hidden = false;
       this.camera.position.set(0, 1.6, 0);
       this.onXR?.(false);
@@ -286,6 +289,7 @@ export class App {
     const n = document.querySelector("#notice");
     if (n) n.textContent = text;
     this.noticeTime = this.elapsed;
+    this.onNotice?.(text);
   }
   status(text) {
     document.querySelector("#status").textContent = text;
@@ -323,17 +327,22 @@ export class App {
   }
   grab(i) {
     if (this.hands[i].userData.held) return;
-    const p = this.hands[i].getWorldPosition(V());
-    const sorted = this.grabbables
-      .filter((o) => o.visible && !o.userData.holder)
-      .map((o) => ({ o, d: o.getWorldPosition(V()).distanceTo(p) }))
-      .sort((a, b) => a.d - b.d);
-    if (sorted[0]?.d < 0.23) this.hold(sorted[0].o, i);
-    else this.notify("Move a hand close to the grip, then squeeze.");
+    const candidate = this.grabTarget(i);
+    if (candidate) this.hold(candidate.object, i);
+    else
+      this.notify(
+        "Bring a hand to the carrying handle, pin or nozzle, then hold the side GRIP button.",
+      );
+  }
+  grabTarget(i) {
+    this.scene.updateMatrixWorld(true);
+    return findGrabTarget(this.grabbables, this.hands[i].getWorldPosition(V()));
   }
   hold(o, i) {
-    if (o.userData.canGrab && !o.userData.canGrab(i)) return;
     const hand = this.hands[i];
+    if (hand.userData.held || o.userData.holder) return false;
+    if (o.userData.grabEnabled && !o.userData.grabEnabled()) return false;
+    if (o.userData.canGrab && !o.userData.canGrab(i)) return false;
     o.userData.homeParent ??= o.parent;
     o.userData.holder = hand;
     hand.userData.held = o;
@@ -343,11 +352,16 @@ export class App {
       o.quaternion.identity();
     }
     o.userData.onGrab?.(i);
+    const actuator =
+      this.controllers[i]?.userData.inputSource?.gamepad?.hapticActuators?.[0];
+    actuator?.pulse?.(0.35, 50)?.catch?.(() => {});
+    return true;
   }
   release(i) {
     const h = this.hands[i],
       o = h.userData.held;
     if (!o) return;
+    o.userData.use?.(false, i);
     this.scene.attach(o);
     delete o.userData.holder;
     delete h.userData.held;
@@ -357,6 +371,17 @@ export class App {
     if (!this.renderer.xr.isPresenting) return;
     for (let i = 0; i < 2; i++) {
       const held = this.hands[i].userData.held;
+      const ready = !held && this.grabTarget(i);
+      const marker = this.hands[i].userData.marker;
+      marker.material.color.set(
+        held
+          ? "#26c4b0"
+          : ready
+            ? "#5de676"
+            : this.hands[i].userData.side === "left"
+              ? "#f0bc45"
+              : "#26a5a6",
+      );
       if (held?.userData.tickHeld) held.userData.tickHeld(i, this.dt);
     }
   }
@@ -378,9 +403,11 @@ export class App {
       this.dragLook = { x: e.clientX, y: e.clientY };
       return;
     }
-    let o = hit.object;
-    while (o && !this.interactables.includes(o) && !this.grabbables.includes(o))
-      o = o.parent;
+    const o = resolvePointerTarget(
+      hit.object,
+      this.grabbables,
+      this.interactables,
+    );
     if (!o) return;
     if (this.grabbables.includes(o)) {
       const i = e.shiftKey ? 0 : 1;
@@ -388,6 +415,7 @@ export class App {
       this.dragObject = o;
       this.dragHand = i;
       o.userData.desktopHeld = true;
+      o.userData.desktopHand = i;
       o.userData.onGrab?.(i);
       this.dragPlane = new THREE.Plane().setFromNormalAndCoplanarPoint(
         this.camera.getWorldDirection(V()).negate(),
@@ -419,6 +447,7 @@ export class App {
   pointerUp() {
     if (this.dragObject) {
       this.dragObject.userData.desktopHeld = false;
+      delete this.dragObject.userData.desktopHand;
       this.dragObject.userData.onRelease?.(this.dragHand);
       this.dragObject = null;
     }

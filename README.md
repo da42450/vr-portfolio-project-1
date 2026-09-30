@@ -22,7 +22,7 @@ npm install
 npm start
 ```
 
-Open `http://localhost:8080`. Three.js is pinned to 0.180.0 and vendored locally, so the static web demos do not depend on a CDN. `npm test` checks procedure ordering/recovery, hunt scoring, and settings validation. `npm run check` checks JavaScript parsing and required entrypoints.
+Open `http://localhost:8080`. Three.js is pinned to 0.180.0 and vendored locally, so the static web demos do not depend on a CDN. `npm test` checks grab targeting/attachment/release, graphics, procedure ordering/recovery, hunt scoring, and settings validation. `npm run check` checks JavaScript parsing and required entrypoints.
 
 For Unity, open the `Demo2_Trainer` directory in Unity **6000.3.22f1**. The generated scene is `Assets/Scenes/Trainer.unity`. The Portfolio menu regenerates the scene/configuration, validates the physics, and builds the Quest APK. Android Build Support, SDK/NDK and OpenJDK are required.
 

@@ -48,11 +48,17 @@ The personalized quiz is 30% of the assignment. Practice answering aloud **witho
 
 **What happens on a wrong part?** A WATER grab generates `wrong-part`. It increments errors and displays corrective feedback but does not advance or erase the step. Choose the ABC tank and continue. This is the full-mark recoverable mistake.
 
-**What detects grabbing/placing?** A grip press searches nearby eligible grab origins within 0.23 m; this is a scripted proximity trigger. The object becomes a child of the grip transform. Release generates a release event and reparents it to the world, then the pin or nozzle snaps into a designated tray/holster. Trigger rays hit in-world buttons/gauge. These are scripted event volumes; there is no general rigidbody collision solver in the web trainer.
+**What detects grabbing/placing?** A side-grip press searches eligible object-local grip spheres: handle 0.18 m, tank 0.17 m, pin 0.085 m, nozzle 0.12 m. The sphere centers are transformed to world coordinates and compared with the controller grip position. An inactive pin/nozzle is skipped instead of blocking tank pickup. The object becomes a child of the grip transform; the tank's handle offset is compensated so the handle stays in the hand. Release generates an event and snaps the object to its designated bench/tray/holster. Index-trigger rays select signs/gauge, or operate a held tool. These are scripted proximity/event volumes; there is no general rigidbody collision solver in the web trainer.
+
+**What caused the reported pickup bug?** The old 0.23 m check measured from the tank's bottom origin, 0.52 m below its handle. A hand on the handle could miss the tank or select the adjacent, unavailable pin. Authored grip centers and read-only availability filtering fixed those mechanisms. Tests reproduce the old miss and verify actual attach/release logic; physical Quest retesting is still needed.
+
+**Why recenter the bench?** The tracked floor origin can be far from where the user is standing. On entry, the workspace is translated to the tracked head's horizontal position, rotated toward its heading and shifted vertically by head height minus the 1.6 m design height. The tools remain within reach. Left X repeats this, releases tools safely and preserves the procedure state.
 
 **How does the pin constraint work when the tank moves?** It converts the pin's current world position to the tank's local frame, keeps its local Y/Z fixed and clamps local X travel to 0–0.2 m. Beyond 0.15 m generates the pin event. Converting back to world position preserves that constraint even while another hand moves the body.
 
 **Why two hands?** The squeeze event verifies that body and nozzle holders are distinct controllers. The body carries the lever, and the other hand aims the nozzle. The nozzle is bounded to a 0.9 m tether. The lever has a 0–0.3 rad scripted hinge. These are real manipulated objects, not only next-step buttons in VR.
+
+**Why distinguish grip and pointing poses?** WebXR grip space positions a held object, while target-ray space defines ergonomic pointing. The nozzle stays attached at the grip but its local quaternion is `inverse(parent world rotation) × controller ray world rotation`. Its world forward therefore matches the pointing ray even when the two tracking poses differ. The aiming line shows the actual nozzle ray, so the user does not have to guess which pose is firing.
 
 **What counts as sweeping?** The nozzle's forward ray must come near a fire-base region. Each of three regions needs 1.2 seconds of spray. A single stationary aim does not finish all regions. Coverage reduces the visible fire, then verification completes the procedure.
 
