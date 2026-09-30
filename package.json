@@ -1,0 +1,13 @@
+{
+  "name": "vr-portfolio-project-1",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node tools/serve.mjs",
+    "prepare": "node tools/vendor.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node tools/check.mjs"
+  },
+  "dependencies": { "three": "0.180.0" }
+}
