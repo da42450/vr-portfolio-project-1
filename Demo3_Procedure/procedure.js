@@ -1,5 +1,5 @@
-// Both modes use the same ordered procedure. Guided errors are recoverable;
-// selecting WATER in Test ends that attempt until reset.
+// One guided, ordered procedure. Errors preserve progress so the learner can
+// correct a wrong action or extinguisher without restarting.
 export const STEPS = [
   "Check alarm, small fire and clear exit.",
   "Pick up the ABC extinguisher.",
@@ -21,20 +21,18 @@ export const HINTS = [
   "Release the trigger and select Finish. Reset to practice again.",
 ];
 export class Procedure {
-  constructor(mode = "guided") {
-    this.reset(mode);
+  constructor() {
+    this.reset();
   }
-  reset(mode = this.mode) {
-    this.mode = mode === "test" ? "test" : "guided";
+  reset() {
     this.step = 0;
     this.errors = 0;
     this.complete = false;
-    this.failed = false;
     this.coverage = [0, 0, 0];
     this.message = "";
   }
   get ended() {
-    return this.complete || this.failed;
+    return this.complete;
   }
   reject(message) {
     this.errors++;
@@ -43,13 +41,8 @@ export class Procedure {
   }
   event(action, context = {}) {
     if (this.ended) return false;
-    if (action === "wrong-part") {
-      if (this.mode === "test") {
-        this.failed = true;
-        return this.reject("Failed: water extinguisher.");
-      }
+    if (action === "wrong-part")
       return this.reject("Wrong extinguisher. Release it and choose ABC.");
-    }
     const expected = [
       "safety",
       "select",
@@ -60,18 +53,9 @@ export class Procedure {
       "sweep",
       "verify",
     ][this.step];
-    if (action !== expected)
-      return this.reject(
-        this.mode === "test"
-          ? "Action out of order."
-          : `First: ${STEPS[this.step]}`,
-      );
+    if (action !== expected) return this.reject(`First: ${STEPS[this.step]}`);
     if (action === "squeeze" && !context.twoHands)
-      return this.reject(
-        this.mode === "test"
-          ? "Action not valid."
-          : "Use separate hands for tank and nozzle.",
-      );
+      return this.reject("Use separate hands for tank and nozzle.");
     if (action === "verify" && !this.coverage.every((n) => n >= 1.2))
       return this.reject("Fire is not out.");
     if (action === "sweep") {
@@ -79,11 +63,7 @@ export class Procedure {
       else return false;
     } else this.step++;
     this.complete = this.step === STEPS.length;
-    this.message = this.complete
-      ? this.mode === "test"
-        ? `Passed · ${this.errors} mistakes`
-        : "Complete."
-      : "";
+    this.message = this.complete ? "Complete." : "";
     return true;
   }
   spray(zone, dt) {

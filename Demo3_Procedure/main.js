@@ -10,7 +10,7 @@ import {
   panelButton,
   room,
 } from "../Shared/runtime.js?v=controls-1.1";
-import { Procedure, STEPS, HINTS } from "./procedure.js?v=pass-2.1";
+import { Procedure, STEPS, HINTS } from "./procedure.js?v=pass-2.2";
 import {
   makeNozzle,
   RubberHose,
@@ -54,23 +54,7 @@ for (const x of [-1.15, 1.15])
     material("#455f67"),
   );
 const board = group(workspace, "Guidance", [0, 1.9, -1.9]);
-const guidedMode = panelButton(
-    app,
-    board,
-    "GUIDED",
-    [-0.43, 0.5, 0],
-    () => reset("guided"),
-    0.75,
-  ),
-  testMode = panelButton(
-    app,
-    board,
-    "TEST",
-    [0.43, 0.5, 0],
-    () => reset("test"),
-    0.75,
-  ),
-  instruction = label(board, "", [0, 0.25, 0], 1.9, 0.22),
+const instruction = label(board, "", [0, 0.25, 0], 1.9, 0.22),
   feedback = label(board, "", [0, 0.025, 0.01], 1.9, 0.18),
   stepAction = panelButton(
     app,
@@ -79,8 +63,8 @@ const guidedMode = panelButton(
     [0, -0.2, 0],
     () => advance(state.step === 0 ? "safety" : "verify"),
     1.05,
-  ),
-  hintAction = panelButton(app, board, "HINT", [-0.58, -0.42, 0], hint, 0.48);
+  );
+panelButton(app, board, "HINT", [-0.58, -0.42, 0], hint, 0.48);
 panelButton(app, board, "RESET", [0, -0.42, 0], () => reset(), 0.48);
 panelButton(app, board, "RECENTER", [0.58, -0.42, 0], centerWorkspace, 0.48);
 label(board, "PASS · USFA · CLASSROOM SIMULATION", [0, -0.59, 0], 1.6, 0.08);
@@ -212,8 +196,7 @@ app.grabbables.push(pin);
 let pulling = false,
   pinRemoved = false,
   pinGripOffset = null;
-pin.userData.grabEnabled = () =>
-  !state.ended && (state.mode === "test" || state.step >= 3);
+pin.userData.grabEnabled = () => !state.ended && state.step >= 3;
 pin.userData.canGrab = () => {
   if (pinRemoved) return true;
   if (state.step !== 3) {
@@ -276,8 +259,7 @@ let nozzleRemoved = false,
   desktopBody = false,
   desktopNozzle = false,
   desktopSweep = 0;
-nozzle.userData.grabEnabled = () =>
-  !state.ended && (state.mode === "test" || state.step >= 4);
+nozzle.userData.grabEnabled = () => !state.ended && state.step >= 4;
 nozzle.userData.canGrab = () => {
   if (state.step < 4) {
     advance("aim");
@@ -333,7 +315,6 @@ for (let i = 0; i < 3; i++) {
   label(workspace, String(i + 1), [x, 0.33, -1.42], 0.16, 0.1);
 }
 function advance(action, ctx) {
-  const wasEnded = state.ended;
   const result = state.event(action, ctx);
   document.querySelector("#notice").textContent = "";
   if (
@@ -342,63 +323,29 @@ function advance(action, ctx) {
     (body.userData.holder || body.userData.desktopHeld || desktopBody)
   )
     state.event("select");
-  if (!wasEnded && state.failed) {
-    for (let i = 0; i < 2; i++) app.release(i);
-    desktopBody = desktopNozzle = squeezing = false;
-    powder.clear();
-  }
   refresh();
   return result;
 }
 function hint() {
-  if (state.mode !== "guided") return;
   app.notify(HINTS[state.step] || "Reset for another attempt.");
 }
 function refresh() {
-  const guided = state.mode === "guided";
-  const text = state.failed
-    ? "FAILED · reset to retry"
-    : state.complete
-      ? guided
-        ? "COMPLETE"
-        : "PASSED"
-      : guided
-        ? `${state.step + 1}/8 · ${STEPS[state.step]}`
-        : "TEST · no directions";
+  const text = state.complete
+    ? "COMPLETE"
+    : `${state.step + 1}/8 · ${STEPS[state.step]}`;
   app.status(text);
   instruction.setText(text);
   feedback.setText(state.message);
   feedback.visible = !!state.message;
-  guidedMode.setText(guided ? "GUIDED ✓" : "GUIDED");
-  testMode.setText(guided ? "TEST" : "TEST ✓");
-  hintAction.visible = guided;
-  // Test retains the physical control at all times, without revealing the step.
-  pressureAction.visible = !guided || (!state.ended && state.step === 2);
+  pressureAction.visible = !state.ended && state.step === 2;
   stepAction.visible = !state.ended && (state.step === 0 || state.step === 7);
-  stepAction.setText(
-    state.step === 0
-      ? guided
-        ? "CONFIRM SAFETY"
-        : "START TEST"
-      : guided
-        ? "FINISH"
-        : "FINISH TEST",
-  );
-  document.querySelector("#hint").hidden = !guided;
-  document
-    .querySelector("#guided")
-    .setAttribute("aria-pressed", String(guided));
-  document.querySelector("#test").setAttribute("aria-pressed", String(!guided));
+  stepAction.setText(state.step === 0 ? "CONFIRM SAFETY" : "FINISH");
   for (const button of document.querySelectorAll("#step-controls button")) {
     button.hidden =
-      !guided ||
       state.ended ||
       !button.dataset.steps.split(",").includes(String(state.step));
   }
-  document.querySelector("#step-controls").hidden = !guided || state.ended;
-  document.querySelector("#mouse-test").hidden = guided;
-  for (const button of document.querySelectorAll("#mouse-test button"))
-    button.disabled = state.ended;
+  document.querySelector("#step-controls").hidden = state.ended;
 }
 function twoHands() {
   const bh = app.renderer.xr.isPresenting
@@ -436,10 +383,10 @@ function use(down) {
 }
 body.userData.use = use;
 nozzle.userData.use = use;
-function reset(mode = state.mode) {
+function reset() {
   app.pointerUp();
   for (let i = 0; i < 2; i++) app.release(i);
-  state.reset(mode);
+  state.reset();
   document.querySelector("#notice").textContent = "";
   pulling =
     pinRemoved =
@@ -495,9 +442,7 @@ function desktopHoldNozzle() {
 }
 function desktopAim() {
   if (!desktopNozzle) {
-    app.notify(
-      state.mode === "guided" ? "Hold the nozzle first." : "Action not valid.",
-    );
+    app.notify("Hold the nozzle first.");
     return;
   }
   nozzle.lookAt(workspace.localToWorld(bases[1].clone()));
@@ -507,8 +452,6 @@ function desktopAim() {
 for (const [id, fn] of [
   ["hint", hint],
   ["reset", () => reset()],
-  ["guided", () => reset("guided")],
-  ["test", () => reset("test")],
   ["safety", () => advance("safety")],
   ["body", desktopHoldBody],
   ["pressure", () => advance("pressure")],
@@ -527,12 +470,9 @@ for (const [id, fn] of [
   ["verify", () => advance("verify")],
 ]) {
   document.querySelector("#" + id).onclick = fn;
-  const testButton = document.querySelector(`[data-action="${id}"]`);
-  if (testButton) testButton.onclick = fn;
 }
 const sprayButton = document.querySelector("#spray");
 sprayButton.onclick = () => use(!squeezing);
-document.querySelector('[data-action="spray"]').onclick = sprayButton.onclick;
 function nextSweep() {
   if (!desktopNozzle) return;
   desktopSweep = desktopSweep === 0 ? -0.32 : desktopSweep < 0 ? 0.32 : 0;
@@ -540,9 +480,6 @@ function nextSweep() {
   nozzle.rotateY(Math.PI);
 }
 document.querySelector("#sweep").onclick = nextSweep;
-document.querySelector('[data-action="sweep"]').onclick = nextSweep;
-document.querySelector('[data-action="water"]').onclick = () =>
-  advance("wrong-part");
 app.onKey = (k) => {
   if (k === "KeyH") hint();
   if (k === "KeyR") reset();
@@ -578,7 +515,6 @@ app.onXR = (active) => {
   }
 };
 app.onNotice = (message) => {
-  if (state.mode !== "guided") return;
   feedback.setText(message);
   feedback.visible = true;
 };
@@ -680,8 +616,7 @@ app.update = (dt, t) => {
   }
   if (!twoHands()) squeezing = false;
   leverPivot.rotation.z = squeezing ? -0.3 : 0;
-  sprayLine.visible =
-    state.mode === "guided" && !state.ended && nozzleRemoved && !squeezing;
+  sprayLine.visible = !state.ended && nozzleRemoved && !squeezing;
   sprayLine.material.color.set(target?.d < 0.15 ? "#5de676" : "#6ab6e5");
   if (sprayLine.visible) {
     const end = tip.clone().addScaledVector(dir, 1.5);
@@ -706,10 +641,9 @@ app.update = (dt, t) => {
     f.visible = remaining > 0.01;
     f.scale.y = Math.max(0.01, remaining * (1 + 0.07 * Math.sin(t * 8 + i)));
   });
-  const active =
-    state.mode === "guided" && !state.ended
-      ? [board, body, gauge, pin, nozzle, lever, nozzle, board][state.step]
-      : null;
+  const active = !state.ended
+    ? [board, body, gauge, pin, nozzle, lever, nozzle, board][state.step]
+    : null;
   focusOutline.visible = !!active;
   if (active) focusOutline.setFromObject(active);
   for (const o of [body, pin, nozzle])
@@ -725,9 +659,7 @@ app.update = (dt, t) => {
       feedback.visible = !!state.message;
     }
     app.metrics(
-      state.mode === "guided"
-        ? `Base coverage: ${state.coverage.map((n) => Math.round((n / 1.2) * 100) + "%").join(" / ")}\nMistakes: ${state.errors} · ${app.fps.toFixed(0)} fps`
-        : `Mistakes: ${state.errors} · ${app.fps.toFixed(0)} fps`,
+      `Base coverage: ${state.coverage.map((n) => Math.round((n / 1.2) * 100) + "%").join(" / ")}\nMistakes: ${state.errors} · ${app.fps.toFixed(0)} fps`,
     );
   }
 };
@@ -737,8 +669,6 @@ app.inspect = () => ({
   errors: state.errors,
   coverage: state.coverage,
   complete: state.complete,
-  failed: state.failed,
-  mode: state.mode,
   twoHands: twoHands(),
   pinRemoved,
 });

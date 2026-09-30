@@ -44,13 +44,13 @@ The personalized quiz is 30% of the assignment. Practice answering aloud **witho
 
 ## Demo 3: state, events and constrained manipulation
 
-**What stores progress?** `Procedure.step`, the error count, completion/failure flags, mode and three spray-coverage timers. Eight explicit states have an expected event. The model rejects an event that does not match the current step or its prerequisites. The state logic is separate from the scene input that generates those events.
+**What stores progress?** `Procedure.step`, the error count, completion flag and three spray-coverage timers. Eight explicit states have an expected event. The model rejects an event that does not match the current step or its prerequisites. The state logic is separate from the scene input that generates those events.
 
-**How do the modes differ?** Guided shows one current step, its highlight, and an optional hint. Controls appear only when relevant: safety at the start, a pressure CHECK button during inspection, Finish after sweeping. Guided mistakes preserve progress for recovery. Test uses the same state checks but hides directions and highlights; its pressure CHECK button remains visible throughout, so the user decides when to use it. WATER causes a terminal failed attempt until Reset. Ordering errors give generic feedback. A mode switch resets the attempt; ordinary Reset keeps the mode.
+**How does guidance work?** There is only one guided walkthrough, with the current step, its highlight, and an optional hint. Controls appear only when relevant: safety at the start, a pressure CHECK button during inspection, Finish after sweeping. Mistakes preserve progress for recovery; Reset starts a fresh walkthrough.
 
 **How do the hose and powder work?** The rubber hose is a small tube along a sagging curve between the valve and the nozzle's rear. It is visual geometry, not rope physics. White powder starts at the nozzle mouth and moves along the aiming direction. A fixed 192-particle pool reuses memory and makes one points draw call. The aimed-ray/coverage timers, not particle collisions, decide when each fire section goes out. This separates cheap visual feedback from the simple procedure rules.
 
-**What happens on a wrong part?** A WATER grab generates `wrong-part`. In Guided mode it increments errors and displays corrective feedback but does not advance or erase the step. Choose ABC and continue; record this recoverable mistake for the rubric. In Test mode it instead sets `failed`, freezes the attempt and requires Reset.
+**What happens on a wrong part?** A WATER grab generates `wrong-part`. It increments errors and displays corrective feedback but does not advance or erase the step. Choose ABC and continue; record this recoverable mistake for the rubric.
 
 **What detects grabbing/placing?** A side-grip press searches eligible object-local grip spheres: handle 0.18 m, tank 0.17 m, pin 0.085 m, nozzle 0.12 m. The sphere centers are transformed to world coordinates and compared with the controller grip position. An inactive pin/nozzle is skipped instead of blocking tank pickup. The object becomes a child of the grip transform; the tank's handle offset is compensated so the handle stays in the hand. Release generates an event and snaps the object to its designated bench/tray/holster. Index-trigger rays select signs/gauge, or operate a held tool. These are scripted proximity/event volumes; there is no general rigidbody collision solver in the web trainer.
 
@@ -62,7 +62,7 @@ The personalized quiz is 30% of the assignment. Practice answering aloud **witho
 
 **Why two hands?** The squeeze event verifies that body and nozzle holders are distinct controllers. The body carries the lever, and the other hand aims the nozzle. The nozzle is bounded to a 0.9 m tether. The lever has a 0–0.3 rad scripted hinge. These are real manipulated objects, not only next-step buttons in VR.
 
-**Why distinguish grip and pointing poses?** WebXR grip space positions a held object, while target-ray space defines ergonomic pointing. The nozzle stays attached at the grip but its local quaternion is `inverse(parent world rotation) × controller ray world rotation`. Its world forward therefore matches the pointing ray even when the two tracking poses differ. Guided's aiming line and the white spray follow the actual nozzle ray; Test hides the aiming line.
+**Why distinguish grip and pointing poses?** WebXR grip space positions a held object, while target-ray space defines ergonomic pointing. The nozzle stays attached at the grip but its local quaternion is `inverse(parent world rotation) × controller ray world rotation`. Its world forward therefore matches the pointing ray even when the two tracking poses differ. The aiming line and the white spray follow the actual nozzle ray.
 
 **What counts as sweeping?** The nozzle's forward ray must come near a fire-base region. Each of three regions needs 1.2 seconds of spray. A single stationary aim does not finish all regions. Coverage reduces the visible fire, then verification completes the procedure.
 

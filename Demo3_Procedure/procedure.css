@@ -5,13 +5,6 @@
 .procedure [hidden] {
   display: none !important;
 }
-.procedure .modes {
-  margin: 4px 0 12px;
-}
-.procedure .modes button[aria-pressed="false"] {
-  background: #dce8e9;
-  color: #173d45;
-}
 .procedure details {
   font-size: 12px;
   margin-top: 12px;
