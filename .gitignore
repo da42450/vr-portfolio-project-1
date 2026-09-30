@@ -40,3 +40,9 @@
 *.mdb
 *.opendb
 *.VC.db
+
+# Local diagnostics and previews
+tmp/
+web-release/
+**/.utmp/
+**/.gradle/
