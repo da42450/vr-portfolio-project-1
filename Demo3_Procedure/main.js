@@ -10,13 +10,14 @@ import {
   panelButton,
   room,
 } from "../Shared/runtime.js?v=controls-1.1";
-import { Procedure, STEPS, HINTS } from "./procedure.js?v=pass-2.0";
+import { Procedure, STEPS, HINTS } from "./procedure.js?v=pass-2.1";
 import {
   makeNozzle,
   RubberHose,
   PowderSpray,
   powderTexture,
-} from "./visuals.js";
+  makePressureButton,
+} from "./visuals.js?v=pass-2.1";
 import { alignHeldToolToRay } from "../Shared/grab.js";
 import {
   BODY_HOME,
@@ -149,15 +150,8 @@ const gauge = label(
 );
 gauge.userData.action = () => advance("pressure");
 app.interactables.push(gauge);
-const pressureAction = panelButton(
-  app,
-  body,
-  "CHECK",
-  [0.075, 0.367, 0.075],
-  () => advance("pressure"),
-  0.095,
-);
-pressureAction.scale.y = 0.25;
+const pressureAction = makePressureButton(body, () => advance("pressure"));
+app.interactables.push(pressureAction);
 const gaugeCanvas = document.createElement("canvas");
 gaugeCanvas.width = gaugeCanvas.height = 256;
 const gc = gaugeCanvas.getContext("2d");
@@ -378,7 +372,8 @@ function refresh() {
   guidedMode.setText(guided ? "GUIDED ✓" : "GUIDED");
   testMode.setText(guided ? "TEST" : "TEST ✓");
   hintAction.visible = guided;
-  pressureAction.visible = guided && !state.ended && state.step === 2;
+  // Test retains the physical control at all times, without revealing the step.
+  pressureAction.visible = !guided || (!state.ended && state.step === 2);
   stepAction.visible = !state.ended && (state.step === 0 || state.step === 7);
   stepAction.setText(
     state.step === 0

@@ -1,11 +1,35 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import * as THREE from "../Shared/vendor/three.module.js";
+import { resolvePointerTarget } from "../Shared/grab.js";
 import {
   RubberHose,
   PowderSpray,
   makeNozzle,
+  makePressureButton,
 } from "../Demo3_Procedure/visuals.js";
+
+test("pressure control is a raised, readable-size button with the same action", () => {
+  const parent = new THREE.Group();
+  let checks = 0;
+  const button = makePressureButton(
+    parent,
+    () => checks++,
+    new THREE.Texture(),
+  );
+  assert.equal(button.parent, parent);
+  assert.equal(button.name, "Pressure CHECK button");
+  const [backing, face] = button.children;
+  assert.equal(backing.geometry.parameters.depth, 0.012);
+  assert.equal(face.geometry.parameters.width, 0.156);
+  assert.equal(face.geometry.parameters.height, 0.056);
+  assert.deepEqual(button.scale.toArray(), [1, 1, 1]);
+  assert.ok(face.position.z > backing.geometry.parameters.depth / 2);
+  assert.equal(resolvePointerTarget(face, [parent], [button]), button);
+  assert.equal(resolvePointerTarget(backing, [parent], [button]), button);
+  button.userData.action();
+  assert.equal(checks, 1);
+});
 
 test("rubber hose stays attached, has real thickness, and reuses its buffers", () => {
   const parent = new THREE.Group(),

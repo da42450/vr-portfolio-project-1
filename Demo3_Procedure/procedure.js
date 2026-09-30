@@ -13,7 +13,7 @@ export const STEPS = [
 export const HINTS = [
   "Raise the alarm. Only attempt a small fire with a clear escape route.",
   "Hold side GRIP near the red ABC tank's handle. WATER is incorrect.",
-  "Read the needle, then trigger the gauge or its CHECK tab with your free hand.",
+  "Read the needle, then trigger the gauge or its CHECK button with your free hand.",
   "Hold the pin ring with the other hand and pull it outward along the tank.",
   "Release the pin. Grip the nozzle and point it low at the fire's base.",
   "Keep GRIP held on tank and nozzle in different hands; press index trigger.",

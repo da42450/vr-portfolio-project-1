@@ -2,6 +2,45 @@ import * as THREE from "../Shared/vendor/three.module.js";
 
 const UP = new THREE.Vector3(0, 1, 0);
 
+// A raised control, not a scaled-down instruction panel. Its short label fills
+// the texture so CHECK is readable at the tank's actual physical size.
+export function makePressureButton(parent, action, texture = null) {
+  if (!texture) {
+    const canvas = document.createElement("canvas");
+    canvas.width = 512;
+    canvas.height = 176;
+    const context = canvas.getContext("2d");
+    context.fillStyle = "#0d6167";
+    context.fillRect(0, 0, 512, 176);
+    context.strokeStyle = "#e5bb53";
+    context.lineWidth = 12;
+    context.strokeRect(6, 6, 500, 164);
+    context.fillStyle = "#ffffff";
+    context.font = "bold 90px system-ui";
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillText("CHECK", 256, 88);
+    texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+  }
+  const button = new THREE.Group();
+  button.name = "Pressure CHECK button";
+  button.position.set(0.035, 0.347, 0.107);
+  button.userData.action = action;
+  const backing = new THREE.Mesh(
+    new THREE.BoxGeometry(0.16, 0.06, 0.012),
+    new THREE.MeshStandardMaterial({ color: "#173d45", roughness: 0.6 }),
+  );
+  const face = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.156, 0.056),
+    new THREE.MeshBasicMaterial({ map: texture }),
+  );
+  face.position.z = 0.007;
+  button.add(backing, face);
+  parent.add(button);
+  return button;
+}
+
 export function makeNozzle(parent) {
   const nozzle = new THREE.Group();
   nozzle.name = "Hose nozzle";
