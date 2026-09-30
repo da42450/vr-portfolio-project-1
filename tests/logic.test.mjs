@@ -46,6 +46,57 @@ test("hunt counts distinct correct items, penalizes errors and freezes final tim
   assert.equal(h.elapsed, time);
   assert.equal(h.score, 955);
 });
+test("Test mode fails on water, freezes the attempt, and reset retains the mode", () => {
+  const p = new Procedure("test");
+  p.event("safety");
+  assert.equal(p.event("wrong-part"), false);
+  assert.equal(p.failed, true);
+  assert.equal(p.ended, true);
+  assert.equal(p.complete, false);
+  assert.equal(p.errors, 1);
+  const final = JSON.stringify(p);
+  for (const action of [
+    "select",
+    "pressure",
+    "pin",
+    "aim",
+    "squeeze",
+    "verify",
+    "wrong-part",
+  ])
+    p.event(action, { twoHands: true });
+  p.spray(0, 2);
+  assert.equal(JSON.stringify(p), final);
+  p.reset();
+  assert.equal(p.mode, "test");
+  assert.equal(p.failed, false);
+  assert.equal(p.errors, 0);
+  assert.equal(p.step, 0);
+  assert.deepEqual(p.coverage, [0, 0, 0]);
+  p.reset("guided");
+  p.event("wrong-part");
+  assert.equal(p.failed, false);
+  assert.equal(p.ended, false);
+  p.reset("invalid");
+  assert.equal(p.mode, "guided");
+});
+test("Test mode gives no next-step directions and can pass the same procedure", () => {
+  const p = new Procedure("test");
+  p.event("pin");
+  assert.equal(p.message, "Action out of order.");
+  for (const action of ["safety", "select", "pressure", "pin", "aim"]) {
+    assert.equal(p.event(action), true);
+    assert.equal(p.message, "");
+  }
+  assert.equal(p.event("squeeze", { twoHands: false }), false);
+  assert.equal(p.message, "Action not valid.");
+  p.event("squeeze", { twoHands: true });
+  for (let i = 0; i < 3; i++) p.spray(i, 2);
+  p.event("verify");
+  assert.equal(p.complete, true);
+  assert.equal(p.failed, false);
+  assert.equal(p.message, "Passed · 2 mistakes");
+});
 test("saved settings reject invalid modes and clamp unsafe speed values", () => {
   assert.deepEqual(
     validSettings({ locomotion: "bad", turn: "bad", speed: 99 }),

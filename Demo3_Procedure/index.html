@@ -5,43 +5,74 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Demo 3 — PASS procedure</title>
     <link rel="stylesheet" href="../Shared/style.css" />
+    <link rel="stylesheet" href="procedure.css" />
   </head>
-  <body>
+  <body class="procedure">
     <section id="hud">
-      <p class="eyebrow">03 · STATE & MANIPULATION · CONTROLS v1.1</p>
+      <p class="eyebrow">03 · PASS v2.0</p>
       <h1>PASS procedure</h1>
-      <p id="status"></p>
-      <p>
-        Quest: bring a controller to the carrying handle and HOLD the side GRIP
-        button. A green hand marker means it is in reach. Release GRIP to place
-        it. The index trigger selects signs/gauge or sprays while holding the
-        body and nozzle in separate hands. Left X recenters the bench.
-      </p>
-      <p>
-        Desktop: drag objects (Shift = left hand). Inspection controls below use
-        the same state checks.
-      </p>
-      <div class="controls">
-        <button id="enter-vr">Enter VR</button
-        ><button id="hint">Hint [H]</button><button id="reset">Reset [R]</button
-        ><button id="safety">Safety checks</button
-        ><button id="body" class="secondary">Carry ABC with left hand</button
-        ><button id="pressure" class="secondary">Check pressure</button
-        ><button id="nozzle" class="secondary">
-          Hold nozzle with right hand</button
-        ><button id="pin" class="secondary">Desktop pull pin</button
-        ><button id="aim-nozzle" class="secondary">Desktop aim base</button
-        ><button id="spray" class="secondary">Hold to squeeze [Space]</button
-        ><button id="verify" class="secondary">Verify fire out</button>
+      <div class="controls modes" aria-label="Practice mode">
+        <button id="guided" aria-pressed="true">Guided</button>
+        <button id="test" aria-pressed="false">Test</button>
       </div>
-      <p>
-        Desktop: arrows sweep left / right while spraying. Click WATER to test a
-        wrong part.
-      </p>
+      <p id="status"></p>
+      <div class="controls">
+        <button id="enter-vr">Enter VR</button><button id="hint">Hint</button
+        ><button id="reset">Reset</button>
+      </div>
+      <div id="step-controls" class="controls">
+        <button id="safety" data-steps="0">Confirm safety</button>
+        <button id="body" data-steps="1" class="secondary">
+          Hold ABC · left hand
+        </button>
+        <button id="pressure" data-steps="2" class="secondary">
+          Inspect pressure
+        </button>
+        <button id="pin" data-steps="3" class="secondary">Pull pin</button>
+        <button id="nozzle" data-steps="4" class="secondary">
+          Hold nozzle · right hand
+        </button>
+        <button id="aim-nozzle" data-steps="4" class="secondary">
+          Aim at base
+        </button>
+        <button id="spray" data-steps="5,6" class="secondary">
+          Spray [Space]
+        </button>
+        <button id="sweep" data-steps="6" class="secondary">
+          Next section [J]
+        </button>
+        <button id="verify" data-steps="7" class="secondary">Finish</button>
+      </div>
+      <details id="mouse-test" hidden>
+        <summary>Mouse test controls</summary>
+        <div class="controls">
+          <button data-action="safety">Start</button>
+          <button data-action="body">ABC grip</button>
+          <button data-action="water">Water grip</button>
+          <button data-action="pressure">Gauge</button>
+          <button data-action="pin">Pin</button>
+          <button data-action="nozzle">Nozzle grip</button>
+          <button data-action="aim-nozzle">Aim</button>
+          <button data-action="spray">Spray</button>
+          <button data-action="sweep">Sweep</button>
+          <button data-action="verify">Finish</button>
+        </div>
+      </details>
+      <details>
+        <summary>Controls</summary>
+        <p>
+          Quest: side GRIP holds, index trigger selects / sprays. Left X
+          recenters.
+        </p>
+        <p>
+          Mouse: drag (Shift = left hand), or use buttons. Space sprays; arrows
+          / J sweep.
+        </p>
+      </details>
       <p id="metrics"></p>
       <a href="../">Portfolio</a>
     </section>
     <div id="notice" role="status"></div>
-    <script type="module" src="main.js?v=controls-1.1"></script>
+    <script type="module" src="main.js?v=pass-2.0"></script>
   </body>
 </html>
