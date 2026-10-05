@@ -142,10 +142,9 @@ namespace PortfolioTrainer
         void Launch()
         {
             validation = false; active = true; ballAge = 0; hitPaddle = false; serves++;
-            position = new Vector3(0, 1.13f, 2.85f);
-            float time = 1.35f / launchSpeed;
-            float vertical = (-.35f + .5f * BallPhysics.Gravity * time * time) / time;
-            velocity = new Vector3(0, vertical, -launchSpeed); spin = Vector3.right * (spinRate * Mathf.PI * 2f);
+            position = FeedTrajectory.Origin;
+            velocity = FeedTrajectory.Velocity(launchSpeed, spinRate, windSpeed);
+            spin = Vector3.right * (spinRate * Mathf.PI * 2f);
             contactCooldown = 0; nextFeed = Time.time + 2.5f;
             menu.ShowNotice("Ball fed · aim for the yellow target");
         }
@@ -214,6 +213,7 @@ namespace PortfolioTrainer
             }
             if (index < 0) return;
             var hit = hits[index]; bool table = hit.collider.name == "Table";
+            if (hit.collider.name == "Net") menu.ShowNotice("Net hit · angle the paddle slightly upward");
             Vector3 contact = start + delta.normalized * hit.distance;
             float incomingSpeed = velocity.magnitude;
             BallPhysics.Contact(ref velocity, ref spin, hit.normal, Vector3.zero, table ? BallPhysics.TableRestitution : BallPhysics.FloorRestitution, table ? BallPhysics.TableFriction : .3f);

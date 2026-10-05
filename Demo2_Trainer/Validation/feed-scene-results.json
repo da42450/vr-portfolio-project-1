@@ -1,0 +1,200 @@
+{
+    "test": "actual table/net colliders",
+    "tested_presets": 24,
+    "legacy_invalid_feeds": 16,
+    "minimum_net_clearance_cm": 7.2891459465026859,
+    "cases": [
+        {
+            "speed": 3.5,
+            "spin": 0.0,
+            "wind": 0.0,
+            "vertical_speed": 3.0044097900390627,
+            "net_clearance_cm": 56.83702087402344,
+            "bounce_z": 0.8499971628189087
+        },
+        {
+            "speed": 3.5,
+            "spin": 0.0,
+            "wind": 1.5,
+            "vertical_speed": 3.0782928466796877,
+            "net_clearance_cm": 58.579444885253909,
+            "bounce_z": 0.8500134348869324
+        },
+        {
+            "speed": 3.5,
+            "spin": -40.0,
+            "wind": 0.0,
+            "vertical_speed": 3.5724945068359377,
+            "net_clearance_cm": 62.365196228027347,
+            "bounce_z": 0.8499866127967835
+        },
+        {
+            "speed": 3.5,
+            "spin": -40.0,
+            "wind": 1.5,
+            "vertical_speed": 3.7012176513671877,
+            "net_clearance_cm": 64.25518035888672,
+            "bounce_z": 0.8500034809112549
+        },
+        {
+            "speed": 3.5,
+            "spin": 40.0,
+            "wind": 0.0,
+            "vertical_speed": 2.4689559936523439,
+            "net_clearance_cm": 50.121402740478519,
+            "bounce_z": 0.8500064611434937
+        },
+        {
+            "speed": 3.5,
+            "spin": 40.0,
+            "wind": 1.5,
+            "vertical_speed": 2.4773483276367189,
+            "net_clearance_cm": 51.32933807373047,
+            "bounce_z": 0.8499913215637207
+        },
+        {
+            "speed": 4.5,
+            "spin": 0.0,
+            "wind": 0.0,
+            "vertical_speed": 1.964691162109375,
+            "net_clearance_cm": 33.265159606933597,
+            "bounce_z": 0.8500129580497742
+        },
+        {
+            "speed": 4.5,
+            "spin": 0.0,
+            "wind": 1.5,
+            "vertical_speed": 1.999542236328125,
+            "net_clearance_cm": 33.900352478027347,
+            "bounce_z": 0.8499962687492371
+        },
+        {
+            "speed": 4.5,
+            "spin": -40.0,
+            "wind": 0.0,
+            "vertical_speed": 2.7815322875976564,
+            "net_clearance_cm": 42.07144546508789,
+            "bounce_z": 0.8499888777732849
+        },
+        {
+            "speed": 4.5,
+            "spin": -40.0,
+            "wind": 1.5,
+            "vertical_speed": 2.8827743530273439,
+            "net_clearance_cm": 43.4254035949707,
+            "bounce_z": 0.8500029444694519
+        },
+        {
+            "speed": 4.5,
+            "spin": 40.0,
+            "wind": 0.0,
+            "vertical_speed": 1.157073974609375,
+            "net_clearance_cm": 23.79718780517578,
+            "bounce_z": 0.8499857783317566
+        },
+        {
+            "speed": 4.5,
+            "spin": 40.0,
+            "wind": 1.5,
+            "vertical_speed": 1.105865478515625,
+            "net_clearance_cm": 23.45545196533203,
+            "bounce_z": 0.8499904870986939
+        },
+        {
+            "speed": 5.5,
+            "spin": 0.0,
+            "wind": 0.0,
+            "vertical_speed": 1.278289794921875,
+            "net_clearance_cm": 21.988067626953126,
+            "bounce_z": 0.8500114679336548
+        },
+        {
+            "speed": 5.5,
+            "spin": 0.0,
+            "wind": 1.5,
+            "vertical_speed": 1.297454833984375,
+            "net_clearance_cm": 22.27305030822754,
+            "bounce_z": 0.850009560585022
+        },
+        {
+            "speed": 5.5,
+            "spin": -40.0,
+            "wind": 0.0,
+            "vertical_speed": 2.2380142211914064,
+            "net_clearance_cm": 31.268808364868165,
+            "bounce_z": 0.8499996662139893
+        },
+        {
+            "speed": 5.5,
+            "spin": -40.0,
+            "wind": 1.5,
+            "vertical_speed": 2.2978286743164064,
+            "net_clearance_cm": 32.014915466308597,
+            "bounce_z": 0.8500003218650818
+        },
+        {
+            "speed": 5.5,
+            "spin": 40.0,
+            "wind": 0.0,
+            "vertical_speed": 0.29163360595703127,
+            "net_clearance_cm": 12.400529861450196,
+            "bounce_z": 0.8499960899353027
+        },
+        {
+            "speed": 5.5,
+            "spin": 40.0,
+            "wind": 1.5,
+            "vertical_speed": 0.26119232177734377,
+            "net_clearance_cm": 12.107966423034668,
+            "bounce_z": 0.8500161170959473
+        },
+        {
+            "speed": 6.5,
+            "spin": 0.0,
+            "wind": 0.0,
+            "vertical_speed": 0.7573623657226563,
+            "net_clearance_cm": 15.611050605773926,
+            "bounce_z": 0.8499880433082581
+        },
+        {
+            "speed": 6.5,
+            "spin": 0.0,
+            "wind": 1.5,
+            "vertical_speed": 0.7689895629882813,
+            "net_clearance_cm": 15.757248878479004,
+            "bounce_z": 0.8499971032142639
+        },
+        {
+            "speed": 6.5,
+            "spin": -40.0,
+            "wind": 0.0,
+            "vertical_speed": 1.738922119140625,
+            "net_clearance_cm": 23.759531021118165,
+            "bounce_z": 0.8500056266784668
+        },
+        {
+            "speed": 6.5,
+            "spin": -40.0,
+            "wind": 1.5,
+            "vertical_speed": 1.777313232421875,
+            "net_clearance_cm": 24.13490867614746,
+            "bounce_z": 0.8500081300735474
+        },
+        {
+            "speed": 6.5,
+            "spin": 40.0,
+            "wind": 0.0,
+            "vertical_speed": -0.2441864013671875,
+            "net_clearance_cm": 7.38592004776001,
+            "bounce_z": 0.8500011563301086
+        },
+        {
+            "speed": 6.5,
+            "spin": 40.0,
+            "wind": 1.5,
+            "vertical_speed": -0.2613067626953125,
+            "net_clearance_cm": 7.2891459465026859,
+            "bounce_z": 0.8500035405158997
+        }
+    ]
+}

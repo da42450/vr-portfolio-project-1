@@ -25,7 +25,7 @@ public static class RuntimeVerification
         var trainer = Object.FindFirstObjectByType<Trainer>();
         if (!requested && trainer && EditorApplication.timeSinceStartup - started > 1)
         {
-            try { MenuVerification.Validate(trainer); }
+            try { FeedVerification.ValidateScene(); MenuVerification.Validate(trainer); }
             catch (System.Exception error) { Debug.LogException(error); EditorApplication.Exit(1); return; }
             trainer.BeginValidation(); requested = true;
         }

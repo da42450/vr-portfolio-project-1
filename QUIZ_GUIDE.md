@@ -24,6 +24,8 @@ The personalized quiz is 30% of the assignment. Practice answering aloud **witho
 
 **What are the systems?** Machine launch, flight under gravity/drag/Magnus, tracked paddle contact, table/floor bounce and rolling, and wind through air-relative velocity. Spin makes flight and contact interact: it affects lift during flight and tangential slip at a bounce.
 
+**Why does a machine feed clear the net?** The speed preset sets forward velocity. `FeedTrajectory` predicts the first table-height crossing using the same forces and timestep as play. If it lands too short, increase initial upward velocity; if too far, decrease it. Sixteen binary-search steps aim for z=0.85 on the player's half, and the result is cached per preset. Tests cover all 24 speed/spin/wind combinations against actual table/net colliders. No forces or net collision are disabled, and there is no steering after launch. A weak, low player return can still hit the net normally.
+
 **What values are sourced?** ITTF: 40 mm diameter, 2.7 g ball; table 2.74×1.525 m with top at 0.76 m; 30 cm drop produces approximately 23 cm rebound. Gravity is 9.80665 m/s²; density is approximately 1.225 kg/m³. Other coefficients are identified as approximations or calibrated design values in PARAMETERS.md. Never call an assumed friction coefficient a measured manufacturer number.
 
 **Where and how do forces run?** `Trainer.FixedUpdate` runs at 180 Hz. `BallPhysics.Integrate` uses semi-implicit Euler: add acceleration×dt to velocity, then updated velocity×dt to position. Contact is checked four times per physics step. Update handles sampled tracking/buttons and HUD, not force integration.

@@ -1,4 +1,10 @@
-# demo2-v1.0.3 — Clearer VR settings panel
+# demo2-v1.0.4 — Feed clears the net
+
+Correct the feeder's initial upward velocity using the existing force model instead of a gravity-only low arc. A cached 16-step binary search aims the first table bounce at z=0.85 m on the player's half; the speed preset still sets forward velocity. The live ball is not steered after launch. Keep all net geometry/collision, aerodynamic/contact coefficients, paddle grip, controller shortcuts and the improved settings panel. Add a short net-hit coaching message for low returns.
+
+APK: `demo2-v1.0.4.apk`, Android version `1.0.4`/code `5`, same package/signing identity. Numerical and actual-scene tests pass for all 24 speed/spin/wind presets, with at least 7.29 cm ball-bottom clearance above the net and a player-side first bounce. The old force-model check flagged 16 of 24 presets as unsafe. Menu/grip/spin/sweep checks still pass, with editor rebound 23.054 cm and independent numerical rebound 23.004 cm. See `Validation/feed.md` for build/on-device results; local tests do not establish a headset gameplay result.
+
+## demo2-v1.0.3 — Clearer VR settings panel
 
 Replace the old plain settings board with a front-facing dark panel, rounded setting cards, larger padded buttons, selected-state colors, hover/hit feedback, a short press animation and left-controller haptic feedback. Speed now has bounded −/+ controls; spin has direct None/Topspin/Backspin choices; feed/wind show their current state. Separate one-ball feed from auto feed. Bounce check shows its running/result state and prevents feeds or restart during measurement. Score, motion, FPS and physics CPU telemetry remain visible.
 

@@ -4,21 +4,21 @@ A stationary, single-user sports trainer. A machine repeatedly feeds balls towar
 
 ## Open, build, install
 
-Open this folder as a Unity **6000.3.22f1** project. Open `Assets/Scenes/Trainer.unity` and press Play for scene inspection. The menu **Portfolio → Prepare Trainer** regenerates the scene, configures OpenXR and runs numerical checks. **Portfolio → Build Quest APK** creates `Builds/demo2-v1.0.3.apk`.
+Open this folder as a Unity **6000.3.22f1** project. Open `Assets/Scenes/Trainer.unity` and press Play for scene inspection. The menu **Portfolio → Prepare Trainer** regenerates the scene, configures OpenXR and runs numerical checks. **Portfolio → Build Quest APK** creates `Builds/demo2-v1.0.4.apk`.
 
-v1.0.3 adds a clearer, controller-operated settings panel. It built with zero errors and installed/initialized on the school Quest 3; the student confirmed improved appearance, readability and left-ray speed/spin/wind/bounce-check interaction. The build targets **ARM64**, IL2CPP and OpenXR, with Meta Quest Support and Oculus Touch profile enabled. It keeps the **UnityPlayerActivity** startup fix verified in v1.0.1 and the palm-centered paddle grip the student confirmed comfortable in v1.0.2. See [the dated menu verification record](Validation/menu.md) for exact results and remaining checks. Remaining gameplay and sustained performance still require physical-headset checks.
+v1.0.4 corrects the machine-feed arc so new balls clear the net and bounce on the player's half. See [the dated feed record](Validation/feed.md) for exact build/device results. It preserves the settings panel the student confirmed readable/working in v1.0.3, the comfortable palm-centered grip from v1.0.2, and the **UnityPlayerActivity** startup fix from v1.0.1. The build targets **ARM64**, IL2CPP and OpenXR, with Meta Quest Support and Oculus Touch profile enabled. Remaining gameplay and sustained performance still require physical-headset checks.
 
 For a personal Quest, enable Developer Mode. On an ArborXR-managed school Quest, enable **USB Debugging** in the permitted headset settings instead; if the setting is locked, ask the professor/IT to deploy the APK through ArborXR. Do not remove school management. Connect USB and allow the **headset's** USB-debugging prompt (the Mac's USB-access prompt is separate), then run these commands from this folder:
 
 ```sh
 adb devices
-adb install -r Builds/demo2-v1.0.3.apk
+adb install -r Builds/demo2-v1.0.4.apk
 adb shell am start -n com.danielaguilar.portfolio.spintrainer/com.unity3d.player.UnityPlayerActivity
 ```
 
 Alternatively drag the APK into Meta Quest Developer Hub or SideQuest. Launch it from Unknown Sources. The APK is published as a **Release asset**, not a Git source file. This Unity application is not a WebXR browser build.
 
-Release: [demo2-v1.0.3](https://github.com/da42450/vr-portfolio-project-1/releases/tag/demo2-v1.0.3) · [download APK](https://github.com/da42450/vr-portfolio-project-1/releases/download/demo2-v1.0.3/demo2-v1.0.3.apk). The older v1.0 release uses GameActivity and froze on the school Quest 3; do not use it. Video: **pending your YouTube link**.
+Release: [demo2-v1.0.4](https://github.com/da42450/vr-portfolio-project-1/releases/tag/demo2-v1.0.4) · [download APK](https://github.com/da42450/vr-portfolio-project-1/releases/download/demo2-v1.0.4/demo2-v1.0.4.apk). The older v1.0 release uses GameActivity and froze on the school Quest 3; do not use it. Video: **pending your YouTube link**.
 
 ## Startup compatibility fix
 
@@ -45,7 +45,7 @@ The yellow target rotates after a successful hit. Returns earn 10 points; a land
 
 The front-left panel faces the player, with rounded cards, a visible pointing ray/hit dot, hover outlines, short press animation and a small left-controller haptic on selection. Selected settings stay highlighted; no hidden click-to-cycle order needs memorizing.
 
-- Speed: **− / +** changes launch speed by 1 m/s within 3.5–6.5 m/s. The current value stays visible; the unavailable endpoint button dims.
+- Speed: **− / +** changes the launch's forward (−Z) component by 1 m/s within 3.5–6.5 m/s. The upward component is calculated separately for the feed arc, so the ball's total speed can be higher. The current preset stays visible; the unavailable endpoint button dims.
 - Spin: directly select **None (0)**, **Topspin (−40)** or **Backspin (+40)** rev/s. Signs refer to the machine's incoming flight along −Z: the modeled topspin lift is downward, backspin upward.
 - Crosswind: toggle between **OFF · calm** and **ON · 1.5 m/s** along world +X.
 - Feed: **Start/Pause auto feed** and **Feed one ball** are separate controls. Right trigger/A/B shortcuts remain available.
@@ -64,7 +64,7 @@ The whole rule is `faceRotation = gripRotation × ModelToGrip`, then `facePositi
 
 ## How the four/five systems work
 
-- Launch: preset speed/spin plus a calculated initial vertical velocity aim for a first bounce on the table.
+- Launch: preset forward speed/spin; a short force-model prediction and 16-step binary search choose the initial vertical velocity for a bounce at z=0.85 m on the player's half. Results are cached per speed/spin/wind preset. The live ball is not steered or teleported after launch.
 - Flight: semi-implicit Euler with gravity, quadratic drag and bounded Magnus lift. Wind changes relative air velocity, adding the fifth interacting system.
 - Tracked contact: `TrackedPose` samples poses in Update. Differences between samples provide translation/angular velocity; the velocity at the contact point includes `ω×offset`. The Rigidbody paddle is kinematic and moved in FixedUpdate.
 - Surface: restitution changes the normal velocity, friction acts on contact slip, and tangential impulses change both translation and spin. This means spin visibly changes a table bounce. Low-speed floor/table contact transitions to a simplified rolling loss.
@@ -74,6 +74,12 @@ The simulation owns the ball state explicitly rather than combining a custom sol
 `Time.fixedDeltaTime=1/180` gives consistent force integration. Four inexpensive sweeps per step help with fast contacts. A lower frequency increases numerical error and changes spin/drag integration; a higher frequency costs more CPU. One ball, a fixed hit buffer, pooled impact AudioSources, low-poly geometry and no realtime shadows limit cost. The board compares measured physics CPU time with a 72 Hz frame's 13.89 ms budget; that comparison is not proof of total GPU time. Verify the real headset's current refresh rate and sustained frame rate.
 
 `SpatialAudio` uses mono generated clips with `spatialBlend=1`, logarithmic attenuation and Doppler. Approach sound follows the ball; impacts occur at their contact points; room ambience has a world position. Table, paddle and floor have different tones and decays, while speed changes volume/pitch. This uses Unity's 3D panning/attenuation; no proprietary HRTF plugin is installed.
+
+## Feed/net correction
+
+The old gravity-only launch aimed for a low bounce just past the net and ignored drag/spin when selecting the arc. The force-model regression flagged 16 of 24 old presets as invalid (insufficient net clearance or a first bounce before crossing). `FeedTrajectory` now predicts with the same gravity, drag, Magnus, wind, spin decay and timestep as play. It changes only the initial upward velocity to aim for z=0.85, about 52 cm from the table's near edge. All 24 current presets also passed real-scene sphere casts: no net strike before a first bounce on the player's half. The minimum ball-bottom clearance above the net is 7.29 cm. See `Validation/feed-numerical-results.json` and `Validation/feed-scene-results.json`.
+
+The net's dimensions/collider and all force/contact coefficients are unchanged. A return hit too low can still strike the net; the panel now says **Net hit · angle the paddle slightly upward**. This is feedback, not an automatic return assist. The 30 cm bounce benchmark remains independent of feed-arc selection.
 
 ## Accuracy, sources and limits
 
