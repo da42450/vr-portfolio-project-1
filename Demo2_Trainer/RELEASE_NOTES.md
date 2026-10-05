@@ -6,6 +6,8 @@ The left menu ray now reads the OpenXR Touch pointing pose rather than using the
 
 APK: `demo2-v1.0.3.apk`, Android version `1.0.3`/code `4`, same package and signing identity. The build succeeded with zero errors; ARM64, expected launch activity and APK signature verified. Actual generated scene tests pass for all ten ray targets, caption fit, rounded-face normals, speed bounds, exclusive spin selection/lift signs, feed/wind/reset callbacks and bounce guards. The editor bounce remains 23.054 cm. See `Validation/menu.md` for on-device results; do not treat local rendering as proof of headset readability or sustained performance.
 
+Quest results: in-place installation and scene initialization passed on the school Quest 3; the left Touch pointing pose is tracked. The student confirmed that the new panel looks better, is readable, and that speed/spin/wind/bounce-check buttons work with the left ray. Brief runtime samples were around 72 FPS. This is not full gameplay validation or a sustained benchmark.
+
 ## demo2-v1.0.2 — Palm-centered paddle grip
 
 Center the virtual racket handle at the right controller's OpenXR grip pose, instead of offsetting the face and leaving the handle away from the palm. Rotate the model shaft and blade into a shakehand-style hold. A small shared `PaddleGrip` helper supplies both the render-frame visual transform and the fixed-step collision transform. Controller tracking runs before trainer Update; visuals no longer inherit Rigidbody interpolation delay. Controls and ball physics coefficients are unchanged.
