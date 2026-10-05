@@ -24,4 +24,6 @@ The APK build succeeded with zero errors. The actual package reports version 1.0
 
 APK SHA-256: `4fbee92e82310339a57e6777881b0cc8bba374b7514c33e64ef4de968d54069c`.
 
-The updated APK installed in place on the same school Quest 3 (`Success`); the installed package reports 1.0.3/code 4. The first launch request opened the Quest's controller-required dialog rather than the application, so controllers must be awake before proceeding. On-device menu/readability checks are still pending. The previously confirmed paddle comfort and startup results are recorded separately for v1.0.2/v1.0.1; do not claim those validate the new menu.
+The updated APK installed in place on the same school Quest 3 (`Success`); the installed package reports 1.0.3/code 4. The first launch request opened the Quest's controller-required dialog rather than the application. After the controllers were awake, the application reached focused VR and initialized (`TRAINER_READY`). `MENU_AIM_READY` confirmed that the left Touch controller's separate OpenXR pointing pose was tracked on the actual headset. Brief post-startup samples were around 72 FPS at 72 Hz, without an observed application exception; this is not a sustained gameplay benchmark.
+
+Student confirmation of panel readability, button interactions and two-eye appearance is still pending. The previously confirmed paddle comfort and startup results are recorded separately for v1.0.2/v1.0.1; do not claim those validate the new menu.
