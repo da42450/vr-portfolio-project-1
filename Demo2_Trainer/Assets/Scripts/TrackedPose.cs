@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.XR;
+using InputSystem = UnityEngine.InputSystem.InputSystem;
+using UnityEngine.XR.OpenXR.Features.Interactions;
 
 namespace PortfolioTrainer
 {
@@ -17,9 +19,21 @@ namespace PortfolioTrainer
         Vector3 previousPosition;
         Quaternion previousRotation;
         bool havePrevious;
+        bool haveAim;
+        // OpenXR aim is separate from the palm/grip transform used by the paddle.
+        public bool TryGetAimPose(out Vector3 position, out Quaternion rotation)
+        {
+            position = transform.position; rotation = transform.rotation;
+            var controller = InputSystem.GetDevice<OculusTouchControllerProfile.OculusTouchController>(node == XRNode.LeftHand ? "LeftHand" : "RightHand");
+            if (controller == null || controller.pointer.isTracked.ReadValue() == 0) { haveAim = false; return false; }
+            position = transform.parent.TransformPoint(controller.pointer.position.ReadValue());
+            rotation = transform.parent.rotation * controller.pointer.rotation.ReadValue();
+            if (!haveAim) { Debug.Log("MENU_AIM_READY: " + node + " OpenXR Touch pointing pose tracked."); haveAim = true; }
+            return true;
+        }
         void Update()
         {
-            InputDevice device = InputDevices.GetDeviceAtXRNode(node);
+            UnityEngine.XR.InputDevice device = InputDevices.GetDeviceAtXRNode(node);
             Vector3 position = Vector3.zero; Quaternion rotation = Quaternion.identity;
             bool valid = device.TryGetFeatureValue(CommonUsages.devicePosition, out position)
                 && device.TryGetFeatureValue(CommonUsages.deviceRotation, out rotation);

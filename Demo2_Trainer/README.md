@@ -4,21 +4,21 @@ A stationary, single-user sports trainer. A machine repeatedly feeds balls towar
 
 ## Open, build, install
 
-Open this folder as a Unity **6000.3.22f1** project. Open `Assets/Scenes/Trainer.unity` and press Play for scene inspection. The menu **Portfolio → Prepare Trainer** regenerates the scene, configures OpenXR and runs numerical checks. **Portfolio → Build Quest APK** creates `Builds/demo2-v1.0.2.apk`.
+Open this folder as a Unity **6000.3.22f1** project. Open `Assets/Scenes/Trainer.unity` and press Play for scene inspection. The menu **Portfolio → Prepare Trainer** regenerates the scene, configures OpenXR and runs numerical checks. **Portfolio → Build Quest APK** creates `Builds/demo2-v1.0.3.apk`.
 
-The v1.0.2 APK build succeeded with **zero build errors**, installed and initialized on the school Quest 3. The student confirmed that its updated grip feels normal without twisting the wrist. It contains **ARM64**, IL2CPP and the OpenXR libraries, with Meta Quest Support and Oculus Touch profile enabled. It uses the standard **UnityPlayerActivity**, not GameActivity, to preserve the startup fix verified in v1.0.1. The build script explicitly preserves this setting. Remaining gameplay and sustained performance still require physical-headset checks.
+v1.0.3 adds a clearer, controller-operated settings panel. The build targets **ARM64**, IL2CPP and OpenXR, with Meta Quest Support and Oculus Touch profile enabled. It keeps the **UnityPlayerActivity** startup fix verified in v1.0.1 and the palm-centered paddle grip the student confirmed comfortable in v1.0.2. See [the dated menu verification record](Validation/menu.md) for build/device results. Remaining gameplay and sustained performance still require physical-headset checks.
 
 For a personal Quest, enable Developer Mode. On an ArborXR-managed school Quest, enable **USB Debugging** in the permitted headset settings instead; if the setting is locked, ask the professor/IT to deploy the APK through ArborXR. Do not remove school management. Connect USB and allow the **headset's** USB-debugging prompt (the Mac's USB-access prompt is separate), then run these commands from this folder:
 
 ```sh
 adb devices
-adb install -r Builds/demo2-v1.0.2.apk
+adb install -r Builds/demo2-v1.0.3.apk
 adb shell am start -n com.danielaguilar.portfolio.spintrainer/com.unity3d.player.UnityPlayerActivity
 ```
 
 Alternatively drag the APK into Meta Quest Developer Hub or SideQuest. Launch it from Unknown Sources. The APK is published as a **Release asset**, not a Git source file. This Unity application is not a WebXR browser build.
 
-Release: [demo2-v1.0.2](https://github.com/da42450/vr-portfolio-project-1/releases/tag/demo2-v1.0.2) · [download APK](https://github.com/da42450/vr-portfolio-project-1/releases/download/demo2-v1.0.2/demo2-v1.0.2.apk). v1.0.2 aligns the paddle with the palm grip. The older v1.0 release uses GameActivity and froze on the school Quest 3; do not use it. Video: **pending your YouTube link**.
+Release: [demo2-v1.0.3](https://github.com/da42450/vr-portfolio-project-1/releases/tag/demo2-v1.0.3) · [download APK](https://github.com/da42450/vr-portfolio-project-1/releases/download/demo2-v1.0.3/demo2-v1.0.3.apk). The older v1.0 release uses GameActivity and froze on the school Quest 3; do not use it. Video: **pending your YouTube link**.
 
 ## Startup compatibility fix
 
@@ -40,6 +40,21 @@ Only the headset and two controllers operate the APK. There is no locomotion or 
 | Left controller + trigger | Ray-select Feed, Speed, Spin, Wind, Bounce check or Reset score on the board |
 
 The yellow target rotates after a successful hit. Returns earn 10 points; a landing in the current target earns 100. Readouts include launch speed, spin, current ball speed, swing speed, returns, session score, frame rate and measured physics CPU time. Repeat feeds only when the previous ball is finished, preventing a growing pool of balls.
+
+## Settings panel
+
+The front-left panel faces the player, with rounded cards, a visible pointing ray/hit dot, hover outlines, short press animation and a small left-controller haptic on selection. Selected settings stay highlighted; no hidden click-to-cycle order needs memorizing.
+
+- Speed: **− / +** changes launch speed by 1 m/s within 3.5–6.5 m/s. The current value stays visible; the unavailable endpoint button dims.
+- Spin: directly select **None (0)**, **Topspin (−40)** or **Backspin (+40)** rev/s. Signs refer to the machine's incoming flight along −Z: the modeled topspin lift is downward, backspin upward.
+- Crosswind: toggle between **OFF · calm** and **ON · 1.5 m/s** along world +X.
+- Feed: **Start/Pause auto feed** and **Feed one ball** are separate controls. Right trigger/A/B shortcuts remain available.
+- Bounce check: displays **Measuring…**, pauses automatic feed, blocks feed/restart during measurement, then shows the rebound, approximately 23 cm reference and percentage difference. It is a check of the table bounce, not an adjustable bounce coefficient.
+- Reset score: clears serves, returns and score; settings are retained.
+
+Speed/spin apply to the next launch; wind affects the active ball's subsequent integration, except the wind-free bounce check. A brief message confirms changes. `TrainerMenu` handles layout/input/feedback; callbacks update the existing state owned by `Trainer`. The left ray reads the Oculus Touch **aim pose**, while the paddle still uses the **grip pose**. The hit dot ends at the same collider used for selection, within four metres. The lightweight unlit panel shader uses [Unity's single-pass stereo shader macros](https://docs.unity.com/en-us/engine/6000.3/manual/xr/graphics/stereo-rendering/single-pass-instancing) and an explicit Resources material to retain it in the APK. No new UI package or image assets are required.
+
+![Rendered settings panel](Validation/menu-preview.png)
 
 ## Paddle grip alignment
 

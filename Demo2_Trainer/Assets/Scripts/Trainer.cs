@@ -11,13 +11,13 @@ namespace PortfolioTrainer
         Transform ball, paddle, rig;
         Rigidbody paddleBody;
         TrackedPose head, left, right;
-        TextMesh readout, validationText;
+        TrainerMenu menu;
         SpatialAudio audioSystem;
         readonly RaycastHit[] hits = new RaycastHit[16];
         readonly List<XRInputSubsystem> inputSubsystems = new List<XRInputSubsystem>();
         Vector3 position, velocity, spin, previousPaddle;
         Quaternion previousPaddleRotation;
-        bool active, feeding, lastTrigger, lastSecondary, validation, bounced, hitPaddle;
+        bool active, feeding, lastSecondary, validation, bounced, hitPaddle;
         float nextFeed, launchSpeed = 4.5f, spinRate, windSpeed, ballAge, contactCooldown;
         float reboundHeight, validationStart, lastHUD, frameAverage = 1f / 72f, physicsMilliseconds;
         int serves, returns, score, targetIndex;
@@ -98,7 +98,6 @@ namespace PortfolioTrainer
             paddleBody = paddle.gameObject.AddComponent<Rigidbody>(); paddleBody.isKinematic = true; paddleBody.useGravity = false; paddleBody.interpolation = RigidbodyInterpolation.None; paddleBody.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
             var shape = paddle.gameObject.AddComponent<BoxCollider>(); shape.size = new Vector3(.17f, .18f, .012f); shape.isTrigger = true;
             // Collider documents the kinematic shape. The relative swept disk performs contact explicitly.
-            var ray = left.gameObject.AddComponent<LineRenderer>(); ray.positionCount = 2; ray.useWorldSpace = false; ray.SetPosition(0, Vector3.zero); ray.SetPosition(1, Vector3.forward * 3.5f); ray.startWidth = ray.endWidth = .003f; ray.material = new Material(Shader.Find("Sprites/Default")); ray.startColor = ray.endColor = new Color(.1f, .65f, .7f);
         }
         TrackedPose Pose(string name, XRNode node)
         {
@@ -112,41 +111,32 @@ namespace PortfolioTrainer
         }
         void BuildMenu()
         {
-            var backing = Mat(new Color(.92f, .97f, .96f));
-            Cube("Readout board", new Vector3(2.4f, 1.7f, .06f), new Vector3(-2.05f, 1.65f, 2.15f), backing, false);
-            readout = Text("Ready", new Vector3(-2.05f, 2.19f, 2.1f), .017f);
-            validationText = Text("Bounce check: not run", new Vector3(-2.05f, 1.73f, 2.1f), .013f);
-            Button("Feed on / off", new Vector3(-2.65f, 1.49f, 2.1f), ToggleFeed);
-            Button("Speed", new Vector3(-1.48f, 1.49f, 2.1f), () => launchSpeed = launchSpeed < 6.5f ? launchSpeed + 1f : 3.5f);
-            Button("Spin", new Vector3(-2.65f, 1.24f, 2.1f), () => spinRate = spinRate == 0 ? 40 : spinRate > 0 ? -40 : 0);
-            Button("Wind", new Vector3(-1.48f, 1.24f, 2.1f), () => windSpeed = windSpeed == 0 ? 1.5f : 0);
-            Button("Bounce check", new Vector3(-2.65f, .99f, 2.1f), BeginValidation);
-            Button("Reset score", new Vector3(-1.48f, .99f, 2.1f), ResetScore);
+            menu = new GameObject("Training settings panel").AddComponent<TrainerMenu>();
+            menu.Initialize(ToggleFeed, () => { if (!validation) Launch(); },
+                delta => { launchSpeed = Mathf.Clamp(launchSpeed + delta, 3.5f, 6.5f); menu.ShowNotice($"Speed set to {launchSpeed:F1} m/s"); },
+                value => { spinRate = value; menu.ShowNotice(value == 0 ? "No spin selected" : value < 0 ? "Topspin · −40 rev/s" : "Backspin · +40 rev/s"); },
+                () => { windSpeed = windSpeed == 0 ? 1.5f : 0; menu.ShowNotice(windSpeed == 0 ? "Crosswind off" : "Crosswind · 1.5 m/s"); },
+                BeginValidation, ResetScore);
+            menu.RefreshControls(feeding, launchSpeed, spinRate, windSpeed, validation);
             Text("LEFT TRIGGER: menu ray\nRIGHT TRIGGER: feed one ball\nRIGHT A: toggle feed / B: reset score", new Vector3(0, 1.55f, 3.42f), .03f);
         }
-        void Button(string caption, Vector3 pos, System.Action action)
-        {
-            var b = Cube(caption, new Vector3(1.02f, .18f, .06f), pos, Mat(new Color(.13f, .4f, .43f)));
-            var label = Text(caption, pos + Vector3.back * .035f, .025f); label.color = Color.white;
-            var button = b.AddComponent<TrainerButton>(); button.Click = action;
-        }
-        void ToggleFeed() { feeding = !feeding; nextFeed = Time.time + .5f; }
-        void ResetScore() { score = serves = returns = 0; }
+        void ToggleFeed() { if (validation) return; feeding = !feeding; nextFeed = Time.time + .5f; menu.ShowNotice(feeding ? "Automatic feed on" : "Automatic feed paused"); }
+        void ResetScore() { score = serves = returns = 0; menu.ShowNotice("Session score reset"); }
         bool lastRightTrigger, lastPrimary;
         void Update()
         {
             frameAverage = Mathf.Lerp(frameAverage, Time.unscaledDeltaTime, .03f);
-            if (left.Trigger && !lastTrigger && Physics.Raycast(left.transform.position, left.transform.forward, out var hit, 8)) hit.collider.GetComponent<TrainerButton>()?.Click?.Invoke();
-            lastTrigger = left.Trigger;
+            menu.UpdatePointer(left);
             if (right.Trigger && !lastRightTrigger && !validation) Launch(); lastRightTrigger = right.Trigger;
             if (right.Primary && !lastPrimary) ToggleFeed(); lastPrimary = right.Primary;
             if (right.Secondary && !lastSecondary) ResetScore(); lastSecondary = right.Secondary;
             if (feeding && !validation && Time.time >= nextFeed && !active) Launch();
+            menu.RefreshControls(feeding, launchSpeed, spinRate, windSpeed, validation);
             audioSystem.UpdateFlight(velocity.magnitude, active);
             if (Time.time - lastHUD > .2f)
             {
                 lastHUD = Time.time;
-                readout.text = $"Serves {serves}  Returns {returns}  Score {score}\nLaunch {launchSpeed:F1} m/s  Spin {spinRate:F0} rev/s\nBall {velocity.magnitude:F1} m/s  Swing {right.PoseVelocity.magnitude:F1} m/s\nWind {windSpeed:F1} m/s   Target {targetIndex + 1}\nFixed 180 Hz / 4 sweeps   FPS {1f / frameAverage:F0}\nPhysics CPU {physicsMilliseconds:F3} ms / 13.89 ms frame\nFeed {(feeding ? "ON" : "OFF")} · right hand {(right.Tracked ? "tracked" : "not tracked")}";
+                menu.RefreshStats(score, returns, serves, targetIndex + 1, velocity.magnitude, right.PoseVelocity.magnitude, 1f / frameAverage, physicsMilliseconds, right.Tracked);
             }
         }
         void Launch()
@@ -157,12 +147,13 @@ namespace PortfolioTrainer
             float vertical = (-.35f + .5f * BallPhysics.Gravity * time * time) / time;
             velocity = new Vector3(0, vertical, -launchSpeed); spin = Vector3.right * (spinRate * Mathf.PI * 2f);
             contactCooldown = 0; nextFeed = Time.time + 2.5f;
+            menu.ShowNotice("Ball fed · aim for the yellow target");
         }
         public void BeginValidation()
         {
             feeding = false; validation = active = true; bounced = false; ballAge = reboundHeight = 0;
             position = new Vector3(.35f, .76f + BallPhysics.Radius + .30f, 2.2f); velocity = spin = Vector3.zero;
-            validationStart = position.y; validationText.text = "REFERENCE: 30 cm drop → about 23 cm rebound\nMeasuring simulated drop with drag enabled…";
+            validationStart = position.y; menu.SetBounceMessage("30 cm drop → about 23 cm · measuring…");
         }
         void FixedUpdate()
         {
@@ -200,7 +191,7 @@ namespace PortfolioTrainer
                     if (velocity.y <= 0)
                     {
                         float error = Mathf.Abs(reboundHeight - .23f) / .23f * 100;
-                        validationText.text = $"ITTF reference: 30 cm → about 23 cm\nSimulated rebound {reboundHeight * 100:F2} cm\nDifference {error:F2}% · 180 Hz · gravity + drag";
+                        menu.SetBounceMessage($"Rebound {reboundHeight * 100:F2} cm / ≈23 cm · error {error:F2}%");
                         Debug.Log("BOUNCE_VALIDATION_CM=" + (reboundHeight * 100).ToString("F3")); active = validation = false;
                     }
                 }
@@ -241,5 +232,4 @@ namespace PortfolioTrainer
             }
         }
     }
-    public sealed class TrainerButton : MonoBehaviour { public System.Action Click; }
 }

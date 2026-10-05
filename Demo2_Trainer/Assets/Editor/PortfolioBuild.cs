@@ -26,13 +26,17 @@ public static class PortfolioBuild
             var template = new Material(Shader.Find("Standard")); template.SetFloat("_Glossiness", .15f);
             AssetDatabase.CreateAsset(template, "Assets/Resources/SurfaceTemplate.mat");
         }
+        if (!AssetDatabase.LoadAssetAtPath<Material>("Assets/Resources/MenuSurface.mat"))
+            AssetDatabase.CreateAsset(new Material(Shader.Find("Portfolio/MenuSurface")), "Assets/Resources/MenuSurface.mat");
+        var menuMaterial = AssetDatabase.LoadAssetAtPath<Material>("Assets/Resources/MenuSurface.mat");
+        menuMaterial.enableInstancing = true; EditorUtility.SetDirty(menuMaterial);
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
         new GameObject("Spin trainer — runtime scene builder").AddComponent<Trainer>();
         EditorSceneManager.SaveScene(scene, "Assets/Scenes/Trainer.unity");
         EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene("Assets/Scenes/Trainer.unity", true) };
         PlayerSettings.companyName = "Daniel Aguilar"; PlayerSettings.productName = "Table Tennis Spin Trainer";
         PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.danielaguilar.portfolio.spintrainer");
-        PlayerSettings.bundleVersion = "1.0.2"; PlayerSettings.Android.bundleVersionCode = 3;
+        PlayerSettings.bundleVersion = "1.0.3"; PlayerSettings.Android.bundleVersionCode = 4;
         // Avoid the GameActivity surface-destruction freeze observed on the school Quest 3.
         PlayerSettings.Android.applicationEntry = AndroidApplicationEntry.Activity;
         PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
@@ -78,7 +82,7 @@ public static class PortfolioBuild
         Prepare();
         if (!EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android)) throw new Exception("Cannot activate Android target.");
         Directory.CreateDirectory("Builds");
-        var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions { scenes = new[] { "Assets/Scenes/Trainer.unity" }, target = BuildTarget.Android, locationPathName = "Builds/demo2-v1.0.2.apk", options = BuildOptions.None });
+        var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions { scenes = new[] { "Assets/Scenes/Trainer.unity" }, target = BuildTarget.Android, locationPathName = "Builds/demo2-v1.0.3.apk", options = BuildOptions.None });
         Debug.Log($"APK_BUILD_RESULT: {report.summary.result}, {report.summary.totalErrors} errors, {report.summary.totalSize} bytes");
         if (report.summary.result != BuildResult.Succeeded) throw new Exception("APK build failed.");
     }

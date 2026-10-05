@@ -15,6 +15,10 @@ await cp(
   "Demo2_Trainer/Validation/scene-preview.png",
   "web-release/Demo2_Trainer/Validation/scene-preview.png",
 );
+await cp(
+  "Demo2_Trainer/Validation/menu-preview.png",
+  "web-release/Demo2_Trainer/Validation/menu-preview.png",
+);
 console.log(
   "Static web-release/ prepared. Unity/APK/temporary logs are excluded.",
 );
