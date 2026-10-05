@@ -38,6 +38,7 @@ namespace PortfolioTrainer
             SubsystemManager.GetSubsystems(inputSubsystems);
             foreach (var input in inputSubsystems) input.TrySetTrackingOriginMode(TrackingOriginModeFlags.Floor);
             Physics.SyncTransforms();
+            Debug.Log("TRAINER_READY: table, paddle, controls and audio initialized.");
         }
         static Material Mat(Color color)
         {

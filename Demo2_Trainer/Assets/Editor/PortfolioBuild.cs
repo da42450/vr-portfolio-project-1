@@ -32,7 +32,9 @@ public static class PortfolioBuild
         EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene("Assets/Scenes/Trainer.unity", true) };
         PlayerSettings.companyName = "Daniel Aguilar"; PlayerSettings.productName = "Table Tennis Spin Trainer";
         PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.danielaguilar.portfolio.spintrainer");
-        PlayerSettings.bundleVersion = "1.0.0"; PlayerSettings.Android.bundleVersionCode = 1;
+        PlayerSettings.bundleVersion = "1.0.1"; PlayerSettings.Android.bundleVersionCode = 2;
+        // Avoid the GameActivity surface-destruction freeze observed on the school Quest 3.
+        PlayerSettings.Android.applicationEntry = AndroidApplicationEntry.Activity;
         PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
         PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
         PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel29;
@@ -66,7 +68,7 @@ public static class PortfolioBuild
         OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.Android).renderMode = OpenXRSettings.RenderMode.SinglePassInstanced;
         EditorUtility.SetDirty(all); EditorUtility.SetDirty(general); EditorUtility.SetDirty(general.Manager);
         AssetDatabase.SaveAssets();
-        Debug.Log("PORTFOLIO_PREPARED: ARM64 / IL2CPP / OpenXR / Meta Quest / Oculus Touch");
+        Debug.Log("PORTFOLIO_PREPARED: ARM64 / IL2CPP / OpenXR / Meta Quest / Oculus Touch / UnityPlayerActivity");
         ValidatePhysics();
     }
     [MenuItem("Portfolio/Build Quest APK")]
@@ -75,7 +77,7 @@ public static class PortfolioBuild
         Prepare();
         if (!EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android)) throw new Exception("Cannot activate Android target.");
         Directory.CreateDirectory("Builds");
-        var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions { scenes = new[] { "Assets/Scenes/Trainer.unity" }, target = BuildTarget.Android, locationPathName = "Builds/demo2-v1.0.apk", options = BuildOptions.None });
+        var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions { scenes = new[] { "Assets/Scenes/Trainer.unity" }, target = BuildTarget.Android, locationPathName = "Builds/demo2-v1.0.1.apk", options = BuildOptions.None });
         Debug.Log($"APK_BUILD_RESULT: {report.summary.result}, {report.summary.totalErrors} errors, {report.summary.totalSize} bytes");
         if (report.summary.result != BuildResult.Succeeded) throw new Exception("APK build failed.");
     }

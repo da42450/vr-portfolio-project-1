@@ -4,21 +4,27 @@ A stationary, single-user sports trainer. A machine repeatedly feeds balls towar
 
 ## Open, build, install
 
-Open this folder as a Unity **6000.3.22f1** project. Open `Assets/Scenes/Trainer.unity` and press Play for scene inspection. The menu **Portfolio → Prepare Trainer** regenerates the scene, configures OpenXR and runs numerical checks. **Portfolio → Build Quest APK** creates `Builds/demo2-v1.0.apk`.
+Open this folder as a Unity **6000.3.22f1** project. Open `Assets/Scenes/Trainer.unity` and press Play for scene inspection. The menu **Portfolio → Prepare Trainer** regenerates the scene, configures OpenXR and runs numerical checks. **Portfolio → Build Quest APK** creates `Builds/demo2-v1.0.1.apk`.
 
-The local APK build succeeded with **zero build errors**. It contains **ARM64**, IL2CPP and the OpenXR libraries, with Meta Quest Support and Oculus Touch profile enabled. It still needs installation and interaction/performance verification on an actual Quest. The desktop editor cannot verify those things.
+The v1.0.1 APK build succeeded with **zero build errors**. It contains **ARM64**, IL2CPP and the OpenXR libraries, with Meta Quest Support and Oculus Touch profile enabled. It uses the standard **UnityPlayerActivity**, not GameActivity, to avoid the startup/lifecycle freeze observed on the school Quest 3. The build script explicitly preserves this setting. Interaction and sustained performance still require physical-headset checks.
 
-Enable Developer Mode on your Quest and connect it with USB. Allow the headset's USB debugging prompt, then:
+For a personal Quest, enable Developer Mode. On an ArborXR-managed school Quest, enable **USB Debugging** in the permitted headset settings instead; if the setting is locked, ask the professor/IT to deploy the APK through ArborXR. Do not remove school management. Connect USB and allow the **headset's** USB-debugging prompt (the Mac's USB-access prompt is separate), then run these commands from this folder:
 
 ```sh
 adb devices
-adb install -r Builds/demo2-v1.0.apk
-adb shell am start -n com.danielaguilar.portfolio.spintrainer/com.unity3d.player.UnityPlayerGameActivity
+adb install -r Builds/demo2-v1.0.1.apk
+adb shell am start -n com.danielaguilar.portfolio.spintrainer/com.unity3d.player.UnityPlayerActivity
 ```
 
 Alternatively drag the APK into Meta Quest Developer Hub or SideQuest. Launch it from Unknown Sources. The APK is published as a **Release asset**, not a Git source file. This Unity application is not a WebXR browser build.
 
-Release: [demo2-v1.0](https://github.com/da42450/vr-portfolio-project-1/releases/tag/demo2-v1.0) · [download APK](https://github.com/da42450/vr-portfolio-project-1/releases/download/demo2-v1.0/demo2-v1.0.apk). Video: **pending your YouTube link**.
+Release: [demo2-v1.0.1](https://github.com/da42450/vr-portfolio-project-1/releases/tag/demo2-v1.0.1) · [download APK](https://github.com/da42450/vr-portfolio-project-1/releases/download/demo2-v1.0.1/demo2-v1.0.1.apk). The older v1.0 release uses GameActivity and froze on the school Quest 3; use v1.0.1 instead. Video: **pending your YouTube link**.
+
+## Startup compatibility fix
+
+On October 5, 2026, the connected ArborXR-managed Quest 3 installed v1.0 but reported an Android ANR. Its trace showed the main thread waiting in `GameActivity.onSurfaceDestroyedNative`, matching the lifecycle callback described in [Unity issue UUM-139694](https://issuetracker.unity3d.com/issues/6429/application-not-responding-anr-occurs-when-gameactivity-option-is-enabled-in-the-player-settings). This identifies the freeze location, not proof that ArborXR contributes nothing. v1.0.1 changes only the Android entry point/version and adds a `TRAINER_READY` log after scene initialization; gameplay and physics are unchanged. See [ArborXR's managed USB-debugging instructions](https://help.arborxr.com/en/articles/10769343-enable-usb-debugging-on-horizon-managed-services-devices).
+
+The rebuilt v1.0.1 installed and launched on that same Quest 3, initialized the scene, and reached OpenXR's focused VR state. Returning to the Home menu and reopening also rendered successfully, without another observed ANR. Brief post-startup runtime samples were approximately **72 FPS at 72 Hz**; this is a startup smoke test, not a sustained gameplay benchmark. See [the dated startup record](Validation/quest-startup.md). Physical controller interactions, ball contacts, audio and in-headset bounce validation still need the student's checks.
 
 ## Controls
 
