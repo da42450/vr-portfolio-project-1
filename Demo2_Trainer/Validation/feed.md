@@ -23,4 +23,10 @@ The Quest APK built successfully with zero errors. Package inspection confirms v
 
 APK SHA-256: `e55796f47b7227e9194eb6df7d06c66f6c07ffe958703c7751ea4e3b3ad2d9c7`.
 
-Installation and physical-headset feed confirmation are pending. Test manual and automatic feeds at default speed/no spin, then lower speed and each spin preset. Net hits on deliberately low player returns are expected, not a regression. Disconnect USB before swinging.
+The APK installed in place on the same ArborXR-managed Quest 3 (`Success`), and the installed package reports version 1.0.4/code 5. Android accepted a cold launch. OpenXR reached `XR_SESSION_STATE_FOCUSED` at 16:33:35 local time, followed by `TRAINER_READY` and tracked left-menu aim at 16:33:40. Brief initialization samples varied from 66 to 73 FPS at 72 Hz; this is not a sustained gameplay or first-feed performance measurement. No application exception was observed in the captured startup log.
+
+Asked whether newly fed balls clear the net and bounce on the player's half at normal and lowest speed, the student explicitly confirmed: “Yes, feeds cross the net now.” The agent did not physically operate the controllers. This is student confirmation of the reported feed issue, not physical verification of all 24 presets, all returns or sustained performance.
+
+The [published v1.0.4 APK](https://github.com/da42450/vr-portfolio-project-1/releases/tag/demo2-v1.0.4) is 21,972,183 bytes; the GitHub asset digest matches the local SHA-256 above. The web package also passes its local packaging check.
+
+For wider gameplay checks, test automatic feeds and each spin preset. Net hits on deliberately low player returns are expected, not a regression. Disconnect USB before swinging.

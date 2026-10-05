@@ -2,7 +2,7 @@
 
 Correct the feeder's initial upward velocity using the existing force model instead of a gravity-only low arc. A cached 16-step binary search aims the first table bounce at z=0.85 m on the player's half; the speed preset still sets forward velocity. The live ball is not steered after launch. Keep all net geometry/collision, aerodynamic/contact coefficients, paddle grip, controller shortcuts and the improved settings panel. Add a short net-hit coaching message for low returns.
 
-APK: `demo2-v1.0.4.apk`, Android version `1.0.4`/code `5`, same package/signing identity. Numerical and actual-scene tests pass for all 24 speed/spin/wind presets, with at least 7.29 cm ball-bottom clearance above the net and a player-side first bounce. The old force-model check flagged 16 of 24 presets as unsafe. Menu/grip/spin/sweep checks still pass, with editor rebound 23.054 cm and independent numerical rebound 23.004 cm. See `Validation/feed.md` for build/on-device results; local tests do not establish a headset gameplay result.
+APK: `demo2-v1.0.4.apk`, Android version `1.0.4`/code `5`, same package/signing identity. Numerical and actual-scene tests pass for all 24 speed/spin/wind presets, with at least 7.29 cm ball-bottom clearance above the net and a player-side first bounce. The old force-model check flagged 16 of 24 presets as unsafe. Menu/grip/spin/sweep checks still pass, with editor rebound 23.054 cm and independent numerical rebound 23.004 cm. The APK built with zero errors, installed and initialized on the school Quest 3; the student confirmed feeds now cross the net when asked to check normal and lowest speed. See `Validation/feed.md` for exact results and remaining gameplay/performance checks.
 
 ## demo2-v1.0.3 — Clearer VR settings panel
 
