@@ -17,7 +17,6 @@ namespace PortfolioTrainer
         readonly List<XRInputSubsystem> inputSubsystems = new List<XRInputSubsystem>();
         Vector3 position, velocity, spin, previousPaddle;
         Quaternion previousPaddleRotation;
-        readonly Vector3 paddleOffset = new Vector3(0, .06f, .07f);
         bool active, feeding, lastTrigger, lastSecondary, validation, bounced, hitPaddle;
         float nextFeed, launchSpeed = 4.5f, spinRate, windSpeed, ballAge, contactCooldown;
         float reboundHeight, validationStart, lastHUD, frameAverage = 1f / 72f, physicsMilliseconds;
@@ -86,10 +85,17 @@ namespace PortfolioTrainer
             left = Pose("Left controller — menu ray", XRNode.LeftHand); right = Pose("Right controller — paddle", XRNode.RightHand);
             left.transform.localPosition = new Vector3(-.3f, 1.1f, .2f); right.transform.localPosition = new Vector3(.25f, 1.05f, .3f);
             paddle = new GameObject("Kinematic tracked paddle").transform;
+            PaddleGrip.GetFacePose(right.transform.position, right.transform.rotation, out Vector3 initialPosition, out Quaternion initialRotation);
+            paddle.SetPositionAndRotation(initialPosition, initialRotation);
+            // Visuals follow the current grip every render frame, without Rigidbody interpolation lag.
+            var visual = new GameObject("Paddle visuals — shakehand grip").transform;
+            visual.SetParent(right.transform, false);
+            PaddleGrip.GetFacePose(Vector3.zero, Quaternion.identity, out Vector3 localPosition, out Quaternion localRotation);
+            visual.SetLocalPositionAndRotation(localPosition, localRotation);
             var disk = GameObject.CreatePrimitive(PrimitiveType.Cylinder); disk.name = "Paddle rubber face"; Destroy(disk.GetComponent<Collider>());
-            disk.transform.SetParent(paddle, false); disk.transform.localRotation = Quaternion.Euler(90, 0, 0); disk.transform.localScale = new Vector3(.17f, .006f, .18f); disk.GetComponent<Renderer>().sharedMaterial = Mat(new Color(.73f, .15f, .2f));
-            var handle = Cube("Paddle handle", new Vector3(.027f, .105f, .023f), Vector3.zero, Mat(new Color(.63f, .45f, .24f)), false); handle.transform.SetParent(paddle, false); handle.transform.localPosition = new Vector3(0, -.11f, 0);
-            paddleBody = paddle.gameObject.AddComponent<Rigidbody>(); paddleBody.isKinematic = true; paddleBody.useGravity = false; paddleBody.interpolation = RigidbodyInterpolation.Interpolate; paddleBody.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+            disk.transform.SetParent(visual, false); disk.transform.localRotation = Quaternion.Euler(90, 0, 0); disk.transform.localScale = new Vector3(.17f, .006f, .18f); disk.GetComponent<Renderer>().sharedMaterial = Mat(new Color(.73f, .15f, .2f));
+            var handle = Cube("Paddle handle", new Vector3(.027f, .105f, .023f), Vector3.zero, Mat(new Color(.63f, .45f, .24f)), false); handle.transform.SetParent(visual, false); handle.transform.localPosition = PaddleGrip.HandleCenter;
+            paddleBody = paddle.gameObject.AddComponent<Rigidbody>(); paddleBody.isKinematic = true; paddleBody.useGravity = false; paddleBody.interpolation = RigidbodyInterpolation.None; paddleBody.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
             var shape = paddle.gameObject.AddComponent<BoxCollider>(); shape.size = new Vector3(.17f, .18f, .012f); shape.isTrigger = true;
             // Collider documents the kinematic shape. The relative swept disk performs contact explicitly.
             var ray = left.gameObject.AddComponent<LineRenderer>(); ray.positionCount = 2; ray.useWorldSpace = false; ray.SetPosition(0, Vector3.zero); ray.SetPosition(1, Vector3.forward * 3.5f); ray.startWidth = ray.endWidth = .003f; ray.material = new Material(Shader.Find("Sprites/Default")); ray.startColor = ray.endColor = new Color(.1f, .65f, .7f);
@@ -162,7 +168,7 @@ namespace PortfolioTrainer
         {
             if (!paddle) return;
             physicsTimer.Restart();
-            Vector3 current = right.transform.TransformPoint(paddleOffset); Quaternion rotation = right.transform.rotation;
+            PaddleGrip.GetFacePose(right.transform.position, right.transform.rotation, out Vector3 current, out Quaternion rotation);
             paddleBody.MovePosition(current); paddleBody.MoveRotation(rotation);
             // Subdivide contact queries to account for rotation as well as relative translation.
             const int substeps = 4; float dt = Time.fixedDeltaTime / substeps;

@@ -4,21 +4,21 @@ A stationary, single-user sports trainer. A machine repeatedly feeds balls towar
 
 ## Open, build, install
 
-Open this folder as a Unity **6000.3.22f1** project. Open `Assets/Scenes/Trainer.unity` and press Play for scene inspection. The menu **Portfolio → Prepare Trainer** regenerates the scene, configures OpenXR and runs numerical checks. **Portfolio → Build Quest APK** creates `Builds/demo2-v1.0.1.apk`.
+Open this folder as a Unity **6000.3.22f1** project. Open `Assets/Scenes/Trainer.unity` and press Play for scene inspection. The menu **Portfolio → Prepare Trainer** regenerates the scene, configures OpenXR and runs numerical checks. **Portfolio → Build Quest APK** creates `Builds/demo2-v1.0.2.apk`.
 
-The v1.0.1 APK build succeeded with **zero build errors**. It contains **ARM64**, IL2CPP and the OpenXR libraries, with Meta Quest Support and Oculus Touch profile enabled. It uses the standard **UnityPlayerActivity**, not GameActivity, to avoid the startup/lifecycle freeze observed on the school Quest 3. The build script explicitly preserves this setting. Interaction and sustained performance still require physical-headset checks.
+The v1.0.2 APK build succeeded with **zero build errors**. It contains **ARM64**, IL2CPP and the OpenXR libraries, with Meta Quest Support and Oculus Touch profile enabled. It uses the standard **UnityPlayerActivity**, not GameActivity, to preserve the startup fix verified on the school Quest 3 in v1.0.1. The build script explicitly preserves this setting. Grip comfort and sustained performance still require physical-headset checks.
 
 For a personal Quest, enable Developer Mode. On an ArborXR-managed school Quest, enable **USB Debugging** in the permitted headset settings instead; if the setting is locked, ask the professor/IT to deploy the APK through ArborXR. Do not remove school management. Connect USB and allow the **headset's** USB-debugging prompt (the Mac's USB-access prompt is separate), then run these commands from this folder:
 
 ```sh
 adb devices
-adb install -r Builds/demo2-v1.0.1.apk
+adb install -r Builds/demo2-v1.0.2.apk
 adb shell am start -n com.danielaguilar.portfolio.spintrainer/com.unity3d.player.UnityPlayerActivity
 ```
 
 Alternatively drag the APK into Meta Quest Developer Hub or SideQuest. Launch it from Unknown Sources. The APK is published as a **Release asset**, not a Git source file. This Unity application is not a WebXR browser build.
 
-Release: [demo2-v1.0.1](https://github.com/da42450/vr-portfolio-project-1/releases/tag/demo2-v1.0.1) · [download APK](https://github.com/da42450/vr-portfolio-project-1/releases/download/demo2-v1.0.1/demo2-v1.0.1.apk). The older v1.0 release uses GameActivity and froze on the school Quest 3; use v1.0.1 instead. Video: **pending your YouTube link**.
+Release: [demo2-v1.0.2](https://github.com/da42450/vr-portfolio-project-1/releases/tag/demo2-v1.0.2) · [download APK](https://github.com/da42450/vr-portfolio-project-1/releases/download/demo2-v1.0.2/demo2-v1.0.2.apk). v1.0.2 aligns the paddle with the palm grip. The older v1.0 release uses GameActivity and froze on the school Quest 3; do not use it. Video: **pending your YouTube link**.
 
 ## Startup compatibility fix
 
@@ -40,6 +40,12 @@ Only the headset and two controllers operate the APK. There is no locomotion or 
 | Left controller + trigger | Ray-select Feed, Speed, Spin, Wind, Bounce check or Reset score on the board |
 
 The yellow target rotates after a successful hit. Returns earn 10 points; a landing in the current target earns 100. Readouts include launch speed, spin, current ball speed, swing speed, returns, session score, frame rate and measured physics CPU time. Repeat feeds only when the previous ball is finished, preventing a growing pool of balls.
+
+## Paddle grip alignment
+
+Hold the right controller normally; the paddle is always attached, so no grip button is needed. `PaddleGrip` centers the handle at the controller's **grip/palm pose**, not its pointing-ray pose. It maps the model's shaft (+Y) to Unity grip +Z and its blade normal (+Z) to grip +X, a simple shakehand-style baseline. The grip-space axes follow the [Unity grip-pose convention](https://learn.microsoft.com/en-us/windows/mixed-reality/develop/unity/motion-controllers-in-unity); the racket dimensions and chosen hold are authored, not a measured equipment calibration.
+
+The whole rule is `faceRotation = gripRotation × ModelToGrip`, then `facePosition = gripPosition − faceRotation × HandleCenter`. Therefore the handle center stays at the hand for any controller rotation. Visuals are children of the tracked controller and update each render frame; the fixed-step contact solver uses the same rule. Tracking is sampled before the trainer's Update. Three grip orientations and six two-sided high-speed contacts passed automated checks. See [the grip validation record](Validation/paddle-grip.md). The student's in-headset comfort check is still pending.
 
 ## How the four/five systems work
 

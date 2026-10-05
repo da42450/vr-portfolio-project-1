@@ -3,6 +3,7 @@ using UnityEngine.XR;
 
 namespace PortfolioTrainer
 {
+    [DefaultExecutionOrder(-100)]
     public sealed class TrackedPose : MonoBehaviour
     {
         public XRNode node;

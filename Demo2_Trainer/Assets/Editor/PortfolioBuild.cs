@@ -32,7 +32,7 @@ public static class PortfolioBuild
         EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene("Assets/Scenes/Trainer.unity", true) };
         PlayerSettings.companyName = "Daniel Aguilar"; PlayerSettings.productName = "Table Tennis Spin Trainer";
         PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.danielaguilar.portfolio.spintrainer");
-        PlayerSettings.bundleVersion = "1.0.1"; PlayerSettings.Android.bundleVersionCode = 2;
+        PlayerSettings.bundleVersion = "1.0.2"; PlayerSettings.Android.bundleVersionCode = 3;
         // Avoid the GameActivity surface-destruction freeze observed on the school Quest 3.
         PlayerSettings.Android.applicationEntry = AndroidApplicationEntry.Activity;
         PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
@@ -70,6 +70,7 @@ public static class PortfolioBuild
         AssetDatabase.SaveAssets();
         Debug.Log("PORTFOLIO_PREPARED: ARM64 / IL2CPP / OpenXR / Meta Quest / Oculus Touch / UnityPlayerActivity");
         ValidatePhysics();
+        ValidatePaddleGrip();
     }
     [MenuItem("Portfolio/Build Quest APK")]
     public static void BuildQuest()
@@ -77,7 +78,7 @@ public static class PortfolioBuild
         Prepare();
         if (!EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android)) throw new Exception("Cannot activate Android target.");
         Directory.CreateDirectory("Builds");
-        var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions { scenes = new[] { "Assets/Scenes/Trainer.unity" }, target = BuildTarget.Android, locationPathName = "Builds/demo2-v1.0.1.apk", options = BuildOptions.None });
+        var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions { scenes = new[] { "Assets/Scenes/Trainer.unity" }, target = BuildTarget.Android, locationPathName = "Builds/demo2-v1.0.2.apk", options = BuildOptions.None });
         Debug.Log($"APK_BUILD_RESULT: {report.summary.result}, {report.summary.totalErrors} errors, {report.summary.totalSize} bytes");
         if (report.summary.result != BuildResult.Succeeded) throw new Exception("APK build failed.");
     }
@@ -107,5 +108,35 @@ public static class PortfolioBuild
         Directory.CreateDirectory("Validation");
         File.WriteAllText("Validation/physics-results.json", "{\"reference_rebound_cm\":23,\"simulated_rebound_cm\":" + (peak * 100).ToString("F4", System.Globalization.CultureInfo.InvariantCulture) + ",\"spin_changes_bounce\":true,\"high_speed_sweep\":true,\"physics_hz\":180,\"substeps\":4}");
         Debug.Log($"PHYSICS_VALIDATED: ITTF rebound {peak * 100:F3} cm; spin bounce and full-speed sweep passed.");
+    }
+    [MenuItem("Portfolio/Validate Paddle Grip")]
+    public static void ValidatePaddleGrip()
+    {
+        Vector3 gripPosition = new Vector3(.3f, 1.2f, -.2f);
+        Quaternion[] poses = { Quaternion.identity, Quaternion.Euler(23, 61, -37), Quaternion.Euler(-90, 0, 0) };
+        foreach (Quaternion gripRotation in poses)
+        {
+            PaddleGrip.GetFacePose(gripPosition, gripRotation, out Vector3 facePosition, out Quaternion faceRotation);
+            Vector3 handleCenter = facePosition + faceRotation * PaddleGrip.HandleCenter;
+            if (Vector3.Distance(handleCenter, gripPosition) > .00001f) throw new Exception("Paddle handle does not coincide with palm grip.");
+            if (Vector3.Distance(faceRotation * Vector3.up, gripRotation * Vector3.forward) > .00001f) throw new Exception("Paddle shaft does not follow the grip axis.");
+            Vector3 normal = faceRotation * Vector3.forward;
+            if (Vector3.Distance(normal, gripRotation * Vector3.right) > .00001f) throw new Exception("Paddle face does not align with the palm plane.");
+            foreach (float side in new[] { -1f, 1f })
+            {
+                Vector3 start = facePosition + normal * (.3f * side), end = facePosition - normal * (.3f * side);
+                if (!BallPhysics.SweptPaddle(start, end, facePosition, facePosition, faceRotation, faceRotation, out Vector3 contactNormal, out float fraction)
+                    || Vector3.Dot(contactNormal, normal * side) < .999f || fraction <= 0 || fraction >= 1)
+                    throw new Exception("Grip-aligned paddle missed a high-speed contact on one face.");
+            }
+            // The render-frame parent/local transform must match the fixed-step world pose.
+            PaddleGrip.GetFacePose(Vector3.zero, Quaternion.identity, out Vector3 localPosition, out Quaternion localRotation);
+            if (Vector3.Distance(gripPosition + gripRotation * localPosition, facePosition) > .00001f
+                || Quaternion.Angle(gripRotation * localRotation, faceRotation) > .01f)
+                throw new Exception("Paddle visual and physics grip transforms disagree.");
+        }
+        Directory.CreateDirectory("Validation");
+        File.WriteAllText("Validation/paddle-grip-results.json", "{\"handle_at_grip\":true,\"shaft_along_grip\":true,\"face_aligned_with_palm\":true,\"visual_physics_pose_matches\":true,\"tested_grip_rotations\":3,\"two_sided_high_speed_sweeps\":6}");
+        Debug.Log("PADDLE_GRIP_VALIDATED: palm anchor, shaft/face axes, render/physics poses and six two-sided sweeps passed.");
     }
 }

@@ -12,7 +12,7 @@ The web package includes `index.html`, `Shared/`, `Demo1_Ride/`, `Demo3_Procedur
 
 ## APK release
 
-The built APK is `Demo2_Trainer/Builds/demo2-v1.0.1.apk` (ignored by Git), published in the [demo2-v1.0.1 Release](https://github.com/da42450/vr-portfolio-project-1/releases/tag/demo2-v1.0.1) with the provided [release notes](Demo2_Trainer/RELEASE_NOTES.md). Use this version instead of v1.0, which froze on the school Quest 3. v1.0.1 passed installation, VR startup and Home-menu return/reopen on that headset, with brief runtime samples around 72 FPS; full gameplay/controller/audio checks are still pending. Download that Release asset and complete those checks on your Quest. If the course repository differs from this public repository, attach the same APK and notes to its Release too. Rebuild/release after any Unity code change.
+The built APK is `Demo2_Trainer/Builds/demo2-v1.0.2.apk` (ignored by Git), published in the [demo2-v1.0.2 Release](https://github.com/da42450/vr-portfolio-project-1/releases/tag/demo2-v1.0.2) with the provided [release notes](Demo2_Trainer/RELEASE_NOTES.md). v1.0.2 centers and aligns the paddle with the hand; its on-device comfort check is pending. It preserves the v1.0.1 startup fix, which passed installation, VR startup and Home-menu return/reopen on the school Quest 3, with brief runtime samples around 72 FPS. Do not use v1.0, which froze on that headset. Full gameplay/controller/audio checks remain pending. Download the latest Release asset and complete those checks on your Quest. If the course repository differs from this public repository, attach the same APK and notes to its Release too. Rebuild/release after any Unity code change.
 
 ## On-device checks
 

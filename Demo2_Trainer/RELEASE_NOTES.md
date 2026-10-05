@@ -1,4 +1,12 @@
-# demo2-v1.0.1 — Quest startup compatibility fix
+# demo2-v1.0.2 — Palm-centered paddle grip
+
+Center the virtual racket handle at the right controller's OpenXR grip pose, instead of offsetting the face and leaving the handle away from the palm. Rotate the model shaft and blade into a shakehand-style hold. A small shared `PaddleGrip` helper supplies both the render-frame visual transform and the fixed-step collision transform. Controller tracking runs before trainer Update; visuals no longer inherit Rigidbody interpolation delay. Controls and ball physics coefficients are unchanged.
+
+APK: `demo2-v1.0.2.apk`. Version: `1.0.2`, Android version code `3`. The package/signing identity and standard `UnityPlayerActivity` startup fix are preserved for an in-place update.
+
+Verification: Unity build succeeded with zero errors; ARM64 and the expected launch activity are verified in the APK, and its signature verifies. The handle anchor, shaft axis, blade normal and visual/physics transform agree for three rotations; six high-speed contacts cover both faces. Numerical rebound remains 23.004 cm with spin/sweep checks passing. Web regression tests: 16 passed; JavaScript/entrypoint checks passed. On the school Quest 3, in-place installation succeeded, OpenXR reached focused VR and the scene initialized. Brief post-startup samples were approximately 72 FPS. Subjective grip comfort remains pending; mathematical alignment and startup are not a comfort test or sustained gameplay benchmark. See `Validation/paddle-grip.md`.
+
+## demo2-v1.0.1 — Quest startup compatibility fix
 
 Switch the Android entry point from GameActivity to the standard `UnityPlayerActivity`, both in saved Player Settings and the repeatable Portfolio build script. The school Quest 3's October 5 ANR trace showed the main thread waiting in `GameActivity.onSurfaceDestroyedNative`. No physics, gameplay, controls or school management settings were changed.
 
