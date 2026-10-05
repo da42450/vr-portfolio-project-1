@@ -22,4 +22,6 @@ APK SHA-256: `274235bf838a070ad6a8e6b84f6d07fa146630093e2556a375279ac4f4d033a7`.
 
 The updated APK installed in place on the same ArborXR-managed Quest 3 (`Success`), and the package reports version 1.0.2/code 3. Android accepted a cold launch. OpenXR reached `XR_SESSION_STATE_FOCUSED`, followed by `TRAINER_READY` at 15:49:30 local time. Brief post-initialization samples were approximately 72 FPS at 72 Hz. No new application exception or ANR was observed in this startup check; this is not a sustained gameplay benchmark.
 
-Subjective grip comfort is still pending the student's response. Test with the right controller held normally and a neutral wrist; check forehand/backhand contact and alignment during movement. Disconnect the USB cable before swinging. Do not claim a comfortable grip or sustained gameplay validation until the student tests it.
+The student explicitly confirmed in chat that the updated grip feels normal when holding the right controller without twisting the wrist. The agent did not physically operate the controller. This confirms subjective comfort for this student, not universal ergonomics or all gameplay features.
+
+Fast forehand/backhand contacts, other board controls, audio and sustained gameplay still require separate checks. Disconnect the USB cable before swinging.
