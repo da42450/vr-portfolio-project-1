@@ -23,6 +23,10 @@ Smooth travel projects the headset forward vector onto the floor. Movement check
 
 The in-world menu has travel mode, snap/smooth turning, speed, seated mode, vignette, height calibration and view reset. Preferences are validated and saved to `localStorage` under `warehouse-comfort-v1`, surviving a page/browser restart. Height calibration is recalculated for the current tracking origin; we persist the seated preference rather than a stale physical pose.
 
+**Reset View** faces the warehouse's starting-aisle direction (world −Z) at the current position and closes the menu. It preserves eye height, seated calibration, physical tracking poses and hunt progress; it does not teleport to the start. **Calibrate Height** remains a separate action. At the starting position, reset should bring the overhead **A RECEIVING ← → B TOOLS** sign back in front of you after a virtual turn.
+
+The earlier reset re-requested `local-floor` and calibrated height without undoing artificial yaw. On October 8 the student reproduced this on Quest: the view lowered slightly and did not face the sign. The correction in `view.js` obtains the current world forward vector, applies yaw `atan2(forward.x, −forward.z)`, and compensates rig X/Z by the head's before/after position. This pivots around the tracked head rather than swinging a room-scale offset around the rig origin. It leaves Y and the tracking reference space unchanged. Regression tests cover three right snap turns, physical yaw, seated/standing height, repeated resets, unchanged hunt state and both button bindings; the actual desktop button restores the aisle sign. **Physical Quest confirmation of the corrected version is still pending.**
+
 | Feature                  | Why it helps                                                              |
 | ------------------------ | ------------------------------------------------------------------------- |
 | Motion vignette          | Reduces peripheral optic flow while translating/turning                   |
@@ -31,7 +35,7 @@ The in-world menu has travel mode, snap/smooth turning, speed, seated mode, vign
 | Teleport fade            | Hides the discontinuous jump; does not remove all discomfort              |
 | 0.5–3 m/s speed          | Lets the user reduce artificial movement                                  |
 | Seated/calibrated height | Makes reach and view height usable from the current posture               |
-| View reset               | Resets the reference space/orientation when it drifts or starts awkwardly |
+| View reset               | Faces the starting aisle without relocating or changing calibrated height |
 
 The sensory conflict is that the eyes report virtual acceleration while the vestibular system does not. Teleport is useful for comfortable aisle traversal; smooth motion supports gradual exploration and reading nearby labels but may be less comfortable. Which is faster depends on route and user preference; measure it instead of assuming.
 

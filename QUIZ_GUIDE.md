@@ -84,7 +84,9 @@ The personalized quiz is 30% of the assignment. Practice answering aloud **witho
 
 **Why does vignette help?** It darkens peripheral vision during continuous translation/rotation, reducing peripheral optic flow. It doesn't make the inner ear detect virtual acceleration. It is one comfort option, not a guarantee against sickness.
 
-**Why snap, fade, speed and calibration?** Snap avoids prolonged rotational flow. Fade masks the jump. Lower speed reduces artificial visual motion. Seated calibration gives a usable eye height for the current posture. View reset requests a fresh reference space (or clears desktop look). All are configurable in the world.
+**Why snap, fade, speed and calibration?** Snap avoids prolonged rotational flow. Fade masks the jump. Lower speed reduces artificial visual motion. Seated calibration gives a usable eye height for the current posture. View reset faces the starting aisle at the current position without changing height or hunt progress. All are configurable in the world.
+
+**How was Reset View fixed?** Requesting another `local-floor` reference space did not cancel the artificial turn; the student observed a small height change instead of a heading reset. The corrected action reads the current world forward vector and adds yaw `atan2(forward.x, −forward.z)` to face world −Z. It rotates around the head, compensating rig X/Z with the head's before/after position so a real tracking offset does not orbit into another location. It does not change Y, recalibrate height, replace the tracking reference space or reset the hunt. Height calibration is a separate button. Test it at the start with three right snap turns: the **A RECEIVING ← → B TOOLS** sign should return in front, with eye height unchanged.
 
 **What persists?** Validated travel, turn, speed, seated and vignette preferences are saved as JSON in localStorage. A page restart reloads them. Eye-height offset is recalculated from the current tracked head, rather than reusing a potentially stale room pose. Test persistence by changing settings and restarting the browser.
 

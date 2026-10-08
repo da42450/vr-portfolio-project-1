@@ -10,6 +10,7 @@ import {
   room,
 } from "../Shared/runtime.js";
 import { Hunt, TARGETS, validSettings } from "./hunt.js";
+import { faceStartingAisle, turnAroundHead } from "./view.js";
 const app = new App({ spawn: [0, 0, 4] }),
   hunt = new Hunt();
 let settings;
@@ -158,14 +159,7 @@ panelButton(
   calibrate,
   0.75,
 );
-panelButton(
-  app,
-  menu,
-  "RESET VIEW",
-  [0.42, -0.68, 0.02],
-  () => app.resetView(),
-  0.75,
-);
+panelButton(app, menu, "RESET VIEW", [0.42, -0.68, 0.02], resetView, 0.75);
 panelButton(app, menu, "CLOSE", [0, -0.89, 0.02], () => toggleMenu(false), 1.5);
 panelButton(
   app,
@@ -235,7 +229,22 @@ app.onXR = (active) => {
   if (active && settings.seated) calibrate();
   else if (!active) app.rig.position.y = 0;
 };
-app.onRecenter = calibrate;
+function resetView() {
+  if (!faceStartingAisle(app.rig, app.camera)) {
+    app.notify("Look forward rather than straight up/down, then Reset View.");
+    return;
+  }
+  // View reset is not height calibration or New Hunt. Cancel pending travel
+  // and close the old menu so the corrected heading is immediately visible.
+  teleport = null;
+  teleportPoint = null;
+  app.fade = app.vignette = 0;
+  turnLatch = true;
+  toggleMenu(false);
+  app.notify(
+    "View reset: facing the starting aisle. Height and progress kept.",
+  );
+}
 function toggleMenu(force) {
   menu.visible = force ?? !menu.visible;
   if (app.renderer.xr.isPresenting) {
@@ -309,7 +318,7 @@ document.querySelector("#mode").onclick = () =>
   });
 document.querySelector("#reset").onclick = reset;
 document.querySelector("#calibrate").onclick = calibrate;
-document.querySelector("#recenter").onclick = () => app.resetView();
+document.querySelector("#recenter").onclick = resetView;
 for (const id of ["locomotion", "turn", "speed", "seated", "vignette"])
   document.querySelector("#" + id).onchange = (e) =>
     change({
@@ -337,12 +346,7 @@ app.onKey = (k) => {
     turn(k === "KeyQ" ? Math.PI / 6 : -Math.PI / 6);
 };
 function turn(angle) {
-  const head = app.camera.getWorldPosition(V());
-  app.rig.rotation.y += angle;
-  app.rig.updateMatrixWorld(true);
-  const after = app.camera.getWorldPosition(V());
-  app.rig.position.x += head.x - after.x;
-  app.rig.position.z += head.z - after.z;
+  turnAroundHead(app.rig, app.camera, angle);
 }
 const defaultSelect = app.select.bind(app);
 app.select = (i) => {
