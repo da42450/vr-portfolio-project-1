@@ -82,6 +82,8 @@ Evidence covered: procedure 4; manipulation 4; guidance/content 3; delivery 2; e
 
 Open [the hunt](https://da42450.github.io/vr-portfolio-project-1/Demo4_Hunt/) in the Quest browser and Enter VR. Rehearse one complete hunt with teleport and another with smooth travel before recording. The recording can switch mechanisms partway through one hunt. Learn the route so the required comfort demonstrations fit below six minutes.
 
+**Preflight issue:** Reset View currently re-requests `local-floor` and recalibrates height; it does not explicitly offset horizontal position or heading. Turn/change position and test it on Quest. If it does not actually recenter the view, have that corrected before filming and do not claim the requirement is met merely because the button can be pressed. See the code-review finding in [AUDIT.md](AUDIT.md).
+
 Controls: left trigger commits a valid teleport arc; left stick moves in smooth mode; right stick turns; right trigger selects stock/settings within range; Left X opens settings. Targets are **AX-104, BX-208, CX-306, DX-412, EX-510**. A/B are Receiving/Tools near the start; C/D are Parts/Shipping farther north. AX is in Receiving's first shelf row, BX in Tools' first row, CX in Parts' first row, and DX/EX in Shipping's two rows. These are rehearsal cues, not a feature that makes targets visually different from distractors.
 
 | Time      | Do this                                                                                                                                                                                                           | Say this in your own words                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
@@ -102,7 +104,7 @@ Evidence covered: search 4; locomotion 4; comfort 3; delivery 2; explanation 2. 
 - [ ] Demos 2/3/4: live-action inset present from first to last frame, headset footage readable, both hands visible.
 - [ ] Demo 2: app sounds audible, fast/directional contacts, bounce measurement/reference, spin/wind and practice shown.
 - [ ] Demo 3: a mistake, recovery without reset, real two-hand manipulation, all eight states, Hint and Reset.
-- [ ] Demo 4: all targets/regions, both travel mechanisms, every comfort setting and restart persistence.
+- [ ] Demo 4: all targets/regions, both travel mechanisms, every comfort setting (including a working view reset) and restart persistence.
 - [ ] Measured performance/remaining limitations reported honestly; no desktop or recording FPS mislabeled as Quest FPS.
 - [ ] Public/unlisted YouTube watch URLs replay successfully signed out, linked from root and each demo README.
 - [ ] Your own headshot displayed; bio confirmed and ≤100 words; exact AI tools/models/versions inventory completed.
