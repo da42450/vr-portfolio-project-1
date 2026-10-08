@@ -11,8 +11,10 @@ import {
 } from "../Shared/runtime.js";
 import { Hunt, TARGETS, validSettings } from "./hunt.js";
 import { faceStartingAisle, turnAroundHead } from "./view.js";
+import { HeightCalibration } from "./height.js";
 const app = new App({ spawn: [0, 0, 4] }),
-  hunt = new Hunt();
+  hunt = new Hunt(),
+  height = new HeightCalibration();
 let settings;
 try {
   settings = validSettings(
@@ -134,6 +136,7 @@ wrist.rotation.x = -0.7;
 const menu = group(app.scene, "In-world comfort settings");
 menu.visible = false;
 const menuRows = {};
+const heightStatus = label(menu, "", [0, 0.87, 0.01], 1.5, 0.16);
 label(menu, "COMFORT SETTINGS", [0, 0.65, 0.01], 1.5, 0.23);
 function menuRow(id, y, fn) {
   menuRows[id] = panelButton(app, menu, "", [0, y, 0.02], fn, 1.5);
@@ -172,8 +175,7 @@ panelButton(
   },
   1.5,
 );
-let heightOffset = 0,
-  teleport = null,
+let teleport = null,
   turnLatch = false,
   lastX = false,
   teleportPoint = null,
@@ -204,6 +206,16 @@ function updateMenu() {
   menuRows.speed.setText(`SPEED: ${settings.speed.toFixed(2)} m/s`);
   menuRows.seated.setText("SEATED: " + (settings.seated ? "ON" : "OFF"));
   menuRows.vignette.setText("VIGNETTE: " + (settings.vignette ? "ON" : "OFF"));
+  const eyeHeight = app.renderer.xr.isPresenting
+    ? height.eyeHeight
+    : app.camera.getWorldPosition(V()).y;
+  const heightText = `${settings.seated ? "SEATED" : "STANDING"} · ${
+    app.renderer.xr.isPresenting && height.pending
+      ? "CALIBRATING…"
+      : `EYE HEIGHT ${eyeHeight.toFixed(2)} m`
+  }`;
+  heightStatus.setText(heightText);
+  document.querySelector("#height-status").textContent = heightText;
   app.status(
     `${hunt.found.size} / 5 found · ${settings.locomotion} · ${settings.turn} turn`,
   );
@@ -216,18 +228,37 @@ function change(patch) {
 }
 function calibrate() {
   if (app.renderer.xr.isPresenting) {
-    const head = app.camera.getWorldPosition(V());
-    heightOffset = settings.seated ? 1.6 - (head.y - app.rig.position.y) : 0;
-    app.rig.position.y = heightOffset;
+    // Input callbacks may be between XR frames. Queue the measurement rather
+    // than reading a stale camera or the zero-height session-start placeholder.
+    height.request();
   } else {
-    heightOffset = 0;
+    height.reset();
+    app.rig.position.y = 0;
     app.camera.position.y = 1.6;
   }
-  app.notify("Eye height calibrated for the current posture.");
+  updateMenu();
 }
-app.onXR = (active) => {
-  if (active && settings.seated) calibrate();
-  else if (!active) app.rig.position.y = 0;
+function updateHeight() {
+  if (!app.renderer.xr.isPresenting || (!height.pending && !menu.visible))
+    return;
+  const frame = app.renderer.xr.getFrame();
+  const referenceSpace = app.renderer.xr.getReferenceSpace();
+  if (!frame || !referenceSpace) return;
+  const pose = frame.getViewerPose(referenceSpace);
+  if (!pose) return;
+  if (height.sample(pose.transform.position.y)) {
+    app.rig.position.y = height.offset;
+    app.rig.updateMatrixWorld(true);
+    // Refresh the user camera from this frame before relocating the open menu.
+    app.renderer.xr.updateCamera(app.camera);
+    if (menu.visible) toggleMenu(true);
+    app.notify(`${settings.seated ? "Seated" : "Standing"} height calibrated.`);
+    updateMenu();
+  }
+}
+app.onXR = () => {
+  height.reset();
+  app.rig.position.y = 0;
 };
 function resetView() {
   if (!faceStartingAisle(app.rig, app.camera)) {
@@ -290,7 +321,7 @@ function startTeleport(point) {
 floor.userData.action = (_, hit) => {
   if (settings.locomotion === "teleport" && !menu.visible) {
     const p = hit.point.clone();
-    p.y = heightOffset;
+    p.y = height.offset;
     startTeleport(p);
   }
 };
@@ -327,7 +358,7 @@ for (const id of ["locomotion", "turn", "speed", "seated", "vignette"])
 function reset() {
   hunt.reset();
   pathLength = 0;
-  app.rig.position.set(0, heightOffset, 4);
+  app.rig.position.set(0, height.offset, 4);
   app.rig.rotation.y = 0;
   bins.forEach((g) => {
     g.children[0].material = binMat;
@@ -388,7 +419,7 @@ function updateArc() {
       p.y = 0.03;
       if (isFree(p)) {
         teleportPoint = p.clone();
-        teleportPoint.y = heightOffset;
+        teleportPoint.y = height.offset;
       }
       blocked = true;
     }
@@ -402,6 +433,7 @@ function updateArc() {
     marker.position.set(teleportPoint.x, 0.025, teleportPoint.z);
 }
 app.update = (dt, t) => {
+  updateHeight();
   hunt.tick(dt);
   let moving = false;
   const [lx, ly] = app.renderer.xr.isPresenting
@@ -497,5 +529,11 @@ app.inspect = () => ({
   elapsed: hunt.elapsed,
   score: hunt.score,
   rig: app.rig.position.toArray(),
+  height: {
+    nativeY: height.nativeY,
+    offset: height.offset,
+    eyeHeight: height.eyeHeight,
+    pending: height.pending,
+  },
   menu: menu.visible,
 });
