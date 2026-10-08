@@ -16,6 +16,8 @@ concurrency:
 
 jobs:
   deploy:
+    # The private course repo is for grading, not a second public Pages site.
+    if: github.repository == 'da42450/vr-portfolio-project-1'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

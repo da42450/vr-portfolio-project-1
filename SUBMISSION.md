@@ -4,6 +4,8 @@
 
 The required private course repository is [ugavrclass2026/portfolio-1-da42450](https://github.com/ugavrclass2026/portfolio-1-da42450), supplied by the student on October 8. The public [hosting repository](https://github.com/da42450/vr-portfolio-project-1) remains separate. The local `course` remote targets the private repo; `origin` targets public hosting. Preserve both development histories and keep the original course starter README in `COURSE_STARTER_README.md`. Every final evidence/docs change must reach the course repo before the deadline; pushing only origin does not submit it.
 
+The local `main` branch follows public hosting. `codex/course-submission` contains the preserved course starter history plus the public development history. For future updates, commit/push public main, switch to `codex/course-submission`, merge main and push `HEAD:main` to the course remote, then return to main. Do not force-push one history over the other. Public Pages deployment is guarded to run only in `da42450/vr-portfolio-project-1`; it deliberately skips in the private grading repo.
+
 ## Web hosting
 
 Public site: **https://da42450.github.io/vr-portfolio-project-1/**. GitHub Pages is configured to deploy through `.github/workflows/pages.yml` on every push to `main`. The workflow runs `npm test`, `npm run check` and `node tools/package-web.mjs`. The package copies **only** the three browser demos and their shared runtime/vendor files to `web-release/`, without Unity source, APK, temporary logs, personal photos or `.git`. Keep this public HTTPS site available through grading and the quiz.
