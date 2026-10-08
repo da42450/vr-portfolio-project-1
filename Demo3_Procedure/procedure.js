@@ -1,24 +1,32 @@
-// One guided, ordered procedure. Errors preserve progress so the learner can
-// correct a wrong action or extinguisher without restarting.
+// Seven procedural outcomes, not seven pickup/acknowledgment buttons.
+// Scene adapters supply measured motion and tool conditions; errors preserve
+// completed outcomes so a learner can recover without restarting.
+export const ACTIONS = [
+  "alarm",
+  "call",
+  "ready",
+  "pin",
+  "aim",
+  "squeeze",
+  "sweep",
+];
 export const STEPS = [
-  "Check alarm, small fire and clear exit.",
-  "Pick up the ABC extinguisher.",
-  "Inspect the green pressure gauge.",
-  "Pull the pin sideways.",
-  "Take the nozzle. Aim at the base.",
-  "Hold tank and nozzle. Squeeze.",
-  "Sweep all three base sections.",
-  "Release spray. Confirm fire is out.",
+  "Pull the alarm handle down.",
+  "Press CALL HELP on the simulation station.",
+  "Hold a suitable tank. Check its pressure.",
+  "Hold the tank. Pull its pin sideways.",
+  "Take the nozzle. Aim at the fire's base.",
+  "Squeeze with the TANK hand's trigger.",
+  "Hold tank trigger. Sweep the whole base.",
 ];
 export const HINTS = [
-  "Raise the alarm. Only attempt a small fire with a clear escape route.",
-  "Hold side GRIP near the red ABC tank's handle. WATER is incorrect.",
-  "Read the needle, then trigger the gauge or its CHECK button with your free hand.",
-  "Hold the pin ring with the other hand and pull it outward along the tank.",
-  "Release the pin. Grip the nozzle and point it low at the fire's base.",
-  "Keep GRIP held on tank and nozzle in different hands; press index trigger.",
-  "Keep spraying while sweeping left, center and right until all flames are out.",
-  "Release the trigger and select Finish. Reset to practice again.",
+  "Grip the cream alarm bar and pull it down to the stop. This scenario assumes a small fire, safe air and a clear exit behind you. Otherwise evacuate.",
+  "Release the alarm handle. Point a free controller at CALL HELP and press its index trigger. This only simulates notifying emergency help; it never makes a real call.",
+  "This is energized electrical equipment. WATER is unsuitable. Hold a red ABC tank, read its gauge, then select CHECK with your free hand. Reject the low-pressure tank; use the green-pressure ABC.",
+  "Hold the accepted tank with one hand. Grip the pin ring with the other and pull sideways along the tank. Release the removed pin into its snap tray.",
+  "Grip the nozzle and point its mouth low at the base. The guide turns green when aligned and within this simulation's spray range.",
+  "Keep the tank and nozzle in different hands, aim at the base, then hold the index trigger on the TANK hand to squeeze its lever. The nozzle hand aims, not squeezes.",
+  "Keep the tank-hand trigger held. Sweep left, center and right. Each base section needs sustained spray; fire-out completes the exercise automatically. Release the trigger afterwards.",
 ];
 export class Procedure {
   constructor() {
@@ -29,6 +37,12 @@ export class Procedure {
     this.errors = 0;
     this.complete = false;
     this.coverage = [0, 0, 0];
+    this.alarmActive =
+      this.helpCalled =
+      this.toolReady =
+      this.pinRemoved =
+      this.aimed =
+        false;
     this.message = "";
   }
   get ended() {
@@ -42,33 +56,73 @@ export class Procedure {
   event(action, context = {}) {
     if (this.ended) return false;
     if (action === "wrong-part")
-      return this.reject("Wrong extinguisher. Release it and choose ABC.");
-    const expected = [
-      "safety",
-      "select",
-      "pressure",
-      "pin",
-      "aim",
-      "squeeze",
-      "sweep",
-      "verify",
-    ][this.step];
-    if (action !== expected) return this.reject(`First: ${STEPS[this.step]}`);
-    if (action === "squeeze" && !context.twoHands)
-      return this.reject("Use separate hands for tank and nozzle.");
-    if (action === "verify" && !this.coverage.every((n) => n >= 1.2))
-      return this.reject("Fire is not out.");
-    if (action === "sweep") {
-      if (this.coverage.every((n) => n >= 1.2)) this.step++;
-      else return false;
-    } else this.step++;
-    this.complete = this.step === STEPS.length;
-    this.message = this.complete ? "Complete." : "";
+      return this.reject("Electrical fire: WATER is unsuitable. Choose ABC.");
+    if (action !== ACTIONS[this.step])
+      return this.reject(`First: ${STEPS[this.step]}`);
+    if (action === "alarm") {
+      if (!Number.isFinite(context.slide) || context.slide < 0.09)
+        return this.reject("Pull the alarm handle down to its stop.");
+      this.alarmActive = true;
+    }
+    if (action === "call") this.helpCalled = true;
+    if (action === "ready") {
+      if (!context.held)
+        return this.reject("Hold the tank before checking it.");
+      if (context.type !== "ABC")
+        return this.reject(
+          "Electrical fire: select an ABC extinguisher, not WATER.",
+        );
+      if (context.pressure !== "green")
+        return this.reject(
+          "Pressure is too low. Release this tank; choose the green-pressure ABC.",
+        );
+      this.toolReady = true;
+    }
+    if (action === "pin") {
+      if (
+        !context.tankHeld ||
+        !Number.isFinite(context.slide) ||
+        context.slide <= 0.15
+      )
+        return this.reject("Hold the tank and pull its pin fully outward.");
+      this.pinRemoved = true;
+    }
+    if (action === "aim") {
+      if (!context.nozzleHeld || !context.atBase)
+        return this.reject("Hold the nozzle and aim at the base within range.");
+      this.aimed = true;
+    }
+    if (action === "squeeze") {
+      if (!context.twoHands)
+        return this.reject("Use separate hands for tank and nozzle.");
+      if (!context.atBase)
+        return this.reject("Aim at the base before squeezing.");
+    }
+    if (action === "sweep" && !this.coverage.every((n) => n >= 1.2))
+      return false;
+    this.step++;
+    this.complete = this.step === ACTIONS.length;
+    this.message = this.complete
+      ? "Fire out. Release trigger. Watch for re-ignition; back away safely."
+      : "";
     return true;
   }
   spray(zone, dt) {
-    if (this.ended || this.step !== 6 || zone < 0 || zone > 2) return;
-    this.coverage[zone] = Math.min(1.2, this.coverage[zone] + dt);
+    if (
+      this.ended ||
+      this.step !== 6 ||
+      !Number.isInteger(zone) ||
+      zone < 0 ||
+      zone > 2 ||
+      !Number.isFinite(dt) ||
+      dt <= 0
+    )
+      return;
+    // A long/stalled frame must not grant seconds of unseen coverage.
+    this.coverage[zone] = Math.min(
+      1.2,
+      this.coverage[zone] + Math.min(dt, 0.05),
+    );
     this.event("sweep");
   }
 }

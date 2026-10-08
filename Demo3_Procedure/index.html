@@ -3,29 +3,36 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Demo 3 — PASS procedure</title>
+    <title>Demo 3 — Fire response + PASS</title>
     <link rel="stylesheet" href="../Shared/style.css" />
     <link rel="stylesheet" href="procedure.css" />
   </head>
   <body class="procedure">
     <section id="hud">
-      <p class="eyebrow">03 · GUIDED PASS v2.2</p>
-      <h1>PASS procedure</h1>
+      <p class="eyebrow">03 · GUIDED FIRE RESPONSE v3.0</p>
+      <h1>Fire response</h1>
       <p id="status"></p>
       <div class="controls">
         <button id="enter-vr">Enter VR</button><button id="hint">Hint</button
         ><button id="reset">Reset</button>
       </div>
       <div id="step-controls" class="controls">
-        <button id="safety" data-steps="0">Confirm safety</button>
-        <button id="body" data-steps="1" class="secondary">
+        <button id="alarm" data-steps="0">Pull alarm handle</button>
+        <button id="call" data-steps="1">Simulate call for help</button>
+        <button id="body" data-steps="2,3,4,5,6" class="secondary">
           Hold ABC · left hand
         </button>
+        <button id="low" data-steps="2" class="secondary">
+          Hold low-pressure ABC
+        </button>
+        <button id="water" data-steps="2" class="secondary">
+          Try WATER (wrong)
+        </button>
         <button id="pressure" data-steps="2" class="secondary">
-          Inspect pressure
+          Check held tank
         </button>
         <button id="pin" data-steps="3" class="secondary">Pull pin</button>
-        <button id="nozzle" data-steps="4" class="secondary">
+        <button id="nozzle" data-steps="4,5,6" class="secondary">
           Hold nozzle · right hand
         </button>
         <button id="aim-nozzle" data-steps="4" class="secondary">
@@ -37,13 +44,12 @@
         <button id="sweep" data-steps="6" class="secondary">
           Next section [J]
         </button>
-        <button id="verify" data-steps="7" class="secondary">Finish</button>
       </div>
       <details>
         <summary>Controls</summary>
         <p>
-          Quest: side GRIP holds, index trigger selects / sprays. Left X
-          recenters.
+          Quest: GRIP holds / pulls. Free-hand trigger selects. Tank-hand
+          trigger squeezes; nozzle hand aims. Left X recenters.
         </p>
         <p>
           Mouse: drag (Shift = left hand), or use buttons. Space sprays; arrows
@@ -54,6 +60,6 @@
       <a href="../">Portfolio</a>
     </section>
     <div id="notice" role="status"></div>
-    <script type="module" src="main.js?v=pass-2.2"></script>
+    <script type="module" src="main.js?v=response-3.0"></script>
   </body>
 </html>

@@ -6,24 +6,23 @@ test("procedure rejects skipped steps and recovers without losing progress", () 
   const p = new Procedure();
   assert.equal(p.event("pin"), false);
   assert.equal(p.step, 0);
-  p.event("safety");
+  p.event("alarm", { slide: 0.11 });
   p.event("wrong-part");
   assert.equal(p.step, 1);
   assert.equal(p.errors, 2);
-  p.event("select");
-  p.event("pressure");
-  p.event("pin");
-  p.event("aim");
-  assert.equal(p.event("squeeze", { twoHands: false }), false);
+  p.event("call");
+  p.event("ready", { held: true, type: "ABC", pressure: "green" });
+  p.event("pin", { tankHeld: true, slide: 0.2 });
+  p.event("aim", { nozzleHeld: true, atBase: true });
+  assert.equal(p.event("squeeze", { twoHands: false, atBase: true }), false);
   assert.equal(p.step, 5);
-  p.event("squeeze", { twoHands: true });
+  p.event("squeeze", { twoHands: true, atBase: true });
   assert.equal(p.step, 6);
-  p.spray(0, 2);
-  p.spray(1, 2);
+  for (let i = 0; i < 25; i++) p.spray(0, 0.05);
+  for (let i = 0; i < 25; i++) p.spray(1, 0.05);
   assert.equal(p.step, 6);
-  p.spray(2, 2);
+  for (let i = 0; i < 25; i++) p.spray(2, 0.05);
   assert.equal(p.step, 7);
-  p.event("verify");
   assert.equal(p.complete, true);
   p.reset();
   assert.equal(p.step, 0);
@@ -48,18 +47,24 @@ test("hunt counts distinct correct items, penalizes errors and freezes final tim
 });
 test("guided completion freezes progress and reset starts a clean walkthrough", () => {
   const p = new Procedure();
-  for (const action of ["safety", "select", "pressure", "pin", "aim"]) {
-    assert.equal(p.event(action), true);
+  for (const [action, context] of [
+    ["alarm", { slide: 0.11 }],
+    ["call", {}],
+    ["ready", { held: true, type: "ABC", pressure: "green" }],
+    ["pin", { tankHeld: true, slide: 0.2 }],
+    ["aim", { nozzleHeld: true, atBase: true }],
+  ]) {
+    assert.equal(p.event(action, context), true);
     assert.equal(p.message, "");
   }
-  p.event("squeeze", { twoHands: true });
-  for (let i = 0; i < 3; i++) p.spray(i, 2);
-  p.event("verify");
+  p.event("squeeze", { twoHands: true, atBase: true });
+  for (let i = 0; i < 3; i++)
+    for (let frame = 0; frame < 25; frame++) p.spray(i, 0.05);
   assert.equal(p.complete, true);
   assert.equal(p.ended, true);
-  assert.equal(p.message, "Complete.");
+  assert.match(p.message, /Fire out/);
   const final = JSON.stringify(p);
-  for (const action of ["safety", "wrong-part", "verify"]) p.event(action);
+  for (const action of ["alarm", "wrong-part", "verify"]) p.event(action);
   p.spray(0, 2);
   assert.equal(JSON.stringify(p), final);
   p.reset();

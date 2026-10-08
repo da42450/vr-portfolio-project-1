@@ -7,10 +7,15 @@ import {
   cylinder,
   group,
   label,
-  panelButton,
   room,
 } from "../Shared/runtime.js?v=controls-1.1";
-import { Procedure, STEPS, HINTS } from "./procedure.js?v=pass-2.2";
+import { Procedure, STEPS, HINTS } from "./procedure.js?v=response-3.0";
+import {
+  alarmSlide,
+  baseTarget,
+  SPRAY_RANGE,
+} from "./mechanics.js?v=response-3.0";
+import { card, raisedButton } from "./cards.js?v=response-3.0";
 import {
   makeNozzle,
   RubberHose,
@@ -28,22 +33,23 @@ import {
   BODY_ZONES,
   PIN_ZONES,
   NOZZLE_ZONES,
-} from "./grips.js";
+} from "./grips.js?v=response-3.0";
 const app = new App(),
   state = new Procedure();
 room(app, 10);
+app.scene.background.set("#c4d6d8");
 const workspace = group(app.scene, "Arm-reach training workspace");
 function desktopView() {
   app.camera.position.set(0, 1.65, 0.75);
   app.camera.lookAt(0, 1.3, -1.3);
 }
 desktopView();
-box(
+const bench = box(
   workspace,
   "Training bench",
   [2.7, 0.12, 0.65],
   [0, 0.72, -0.62],
-  material("#829a98"),
+  material("#526d79"),
 );
 for (const x of [-1.15, 1.15])
   box(
@@ -53,25 +59,166 @@ for (const x of [-1.15, 1.15])
     [x, 0.35, -0.62],
     material("#455f67"),
   );
-const board = group(workspace, "Guidance", [0, 1.9, -1.9]);
-const instruction = label(board, "", [0, 0.25, 0], 1.9, 0.22),
-  feedback = label(board, "", [0, 0.025, 0.01], 1.9, 0.18),
-  stepAction = panelButton(
-    app,
-    board,
-    "",
-    [0, -0.2, 0],
-    () => advance(state.step === 0 ? "safety" : "verify"),
-    1.05,
+const board = group(workspace, "Guidance", [0, 1.9, -1.8]);
+box(
+  board,
+  "Guidance card backing",
+  [1.84, 0.68, 0.04],
+  [0, -0.02, -0.03],
+  material("#142f3c"),
+);
+card(board, "FIRE RESPONSE / GUIDED", [0, 0.23, 0], 1.5, 0.07, {
+  color: "#76d6c6",
+});
+const instruction = card(board, "", [0, 0.1, 0], 1.7, 0.13),
+  feedback = card(board, "", [0, -0.06, 0.01], 1.7, 0.11, {
+    color: "#ffcf90",
+    wrap: 68,
+  });
+const hintCard = card(board, "", [0, -0.54, 0.45], 1.84, 0.3, {
+  color: "#d1ede8",
+  accent: "#6acfc1",
+  wrap: 65,
+});
+hintCard.visible = false;
+const progressDots = [];
+for (let i = 0; i < 7; i++) {
+  const dot = new THREE.Mesh(
+    new THREE.CircleGeometry(0.014, 16),
+    new THREE.MeshBasicMaterial({ color: "#58707b" }),
   );
-panelButton(app, board, "HINT", [-0.58, -0.42, 0], hint, 0.48);
-panelButton(app, board, "RESET", [0, -0.42, 0], () => reset(), 0.48);
-panelButton(app, board, "RECENTER", [0.58, -0.42, 0], centerWorkspace, 0.48);
-label(board, "PASS · USFA · CLASSROOM SIMULATION", [0, -0.59, 0], 1.6, 0.08);
+  dot.position.set((i - 3) * 0.07, 0.17, 0.014);
+  board.add(dot);
+  progressDots.push(dot);
+}
+raisedButton(app, board, "HINT", [-0.47, -0.22, 0], hint, 0.4, 0.1);
+raisedButton(app, board, "RESET", [0, -0.22, 0], () => reset(), 0.4, 0.1);
+raisedButton(
+  app,
+  board,
+  "RECENTER",
+  [0.47, -0.22, 0],
+  centerWorkspace,
+  0.4,
+  0.1,
+);
+card(board, "USFA + OSHA / CLASSROOM SIMULATION", [0, -0.31, 0], 1.6, 0.045, {
+  color: "#b1c9cc",
+});
 label(workspace, "EXIT · BEHIND YOU", [0, 2.1, 1], 2, 0.35).rotation.y =
   Math.PI;
-function extinguisher(name, x, color) {
-  const g = group(workspace, name, [x, 0.82, -0.5]);
+// A physical downward slider activates the alarm. Grabbing alone does nothing.
+const alarm = group(workspace, "Alarm station", [-0.64, 1.19, -0.36]);
+box(
+  alarm,
+  "Alarm stand",
+  [0.04, 0.29, 0.04],
+  [0, -0.265, -0.025],
+  material("#344e5a"),
+);
+box(
+  alarm,
+  "Alarm housing",
+  [0.26, 0.35, 0.08],
+  [0, 0.055, 0],
+  material("#a53840"),
+);
+card(alarm, "FIRE ALARM", [0, 0.178, 0.046], 0.23, 0.055, {
+  background: "#a53840",
+});
+card(alarm, "PULL DOWN", [0, -0.04, 0.046], 0.21, 0.04, {
+  background: "#a53840",
+});
+const ALARM_HOME = [0, 0.09, 0.09];
+const alarmHandle = group(alarm, "Alarm pull handle", ALARM_HOME);
+box(
+  alarmHandle,
+  "Raised pull bar",
+  [0.2, 0.03, 0.04],
+  [0, 0, 0],
+  material("#f3ddd1"),
+);
+alarmHandle.userData.grabZones = [{ center: [0, 0, 0], radius: 0.09 }];
+alarmHandle.userData.grabEnabled = () => !state.ended && !state.alarmActive;
+alarmHandle.userData.canGrab = () =>
+  state.step === 0 || advance("alarm", { slide: 0 });
+let alarmPulling = false,
+  alarmGripOffset = null,
+  alarmTravel = 0;
+alarmHandle.userData.onGrab = () => {
+  alarmPulling = true;
+  alarmGripOffset = alarmHandle.position.clone();
+};
+alarmHandle.userData.onRelease = () => {
+  alarmPulling = false;
+  alarmGripOffset = null;
+  alarm.attach(alarmHandle);
+  alarmHandle.position.set(
+    ALARM_HOME[0],
+    ALARM_HOME[1] - (state.alarmActive ? 0.11 : 0),
+    ALARM_HOME[2],
+  );
+  alarmHandle.quaternion.identity();
+};
+app.grabbables.push(alarmHandle);
+const alarmLamp = new THREE.Mesh(
+  new THREE.SphereGeometry(0.019, 12, 8),
+  material("#552c32", { emissive: "#55141b", emissiveIntensity: 0 }),
+);
+alarmLamp.position.set(0.092, 0.123, 0.05);
+alarm.add(alarmLamp);
+const alarmStatus = card(alarm, "READY", [0, -0.092, 0.046], 0.2, 0.035, {
+  background: "#a53840",
+});
+const callStation = group(
+  workspace,
+  "Simulated emergency call station",
+  [0.7, 1.47, -0.44],
+);
+box(
+  callStation,
+  "Call station stand",
+  [0.04, 0.57, 0.04],
+  [0.13, -0.41, -0.025],
+  material("#344e5a"),
+);
+box(
+  callStation,
+  "Call station housing",
+  [0.33, 0.25, 0.055],
+  [0, 0, 0],
+  material("#203d4c"),
+);
+card(callStation, "SIMULATED CALL", [0, 0.075, 0.03], 0.3, 0.045, {
+  color: "#b9d6dd",
+});
+const callButton = raisedButton(
+  app,
+  callStation,
+  "CALL HELP",
+  [0, 0.005, 0.045],
+  () => {
+    callPressedUntil = app.elapsed + 0.18;
+    advance("call");
+  },
+  0.27,
+  0.08,
+);
+let callPressedUntil = 0;
+const callStatus = card(
+  callStation,
+  "NO REAL CALL",
+  [0, -0.078, 0.03],
+  0.3,
+  0.04,
+  { color: "#b9d6dd" },
+);
+
+function extinguisher(name, position, color, pressure = "green") {
+  const g = group(workspace, name, position);
+  g.userData.type = name === "WATER" ? "WATER" : "ABC";
+  g.userData.pressure = pressure;
+  g.userData.home = position;
   cylinder(g, "Tank", 0.095, 0.38, [0, 0.2, 0], material(color));
   const shoulder = new THREE.Mesh(
     new THREE.SphereGeometry(0.095, 20, 12),
@@ -95,15 +242,24 @@ function extinguisher(name, x, color) {
     [0, 0.52, 0],
     material("#283d45"),
   );
-  label(g, name, [0, 0.23, 0.1], 0.16, 0.12);
+  card(
+    g,
+    name === "WATER" ? "WATER\nCLASS A" : "ABC\nDRY CHEMICAL",
+    [0, 0.23, 0.1],
+    0.155,
+    0.14,
+    { background: "#f4f1e8", color: "#183b47" },
+  );
   g.userData.snapGrip = V(...BODY_GRIP);
   g.userData.grabZones = BODY_ZONES;
   g.userData.grabEnabled = () => !state.ended;
   app.grabbables.push(g);
   return g;
 }
-const body = extinguisher("ABC", BODY_HOME[0], "#b73a3c"),
-  wrong = extinguisher("WATER", WATER_HOME[0], "#4076a0");
+const LOW_HOME = [0.59, 0.82, -0.5];
+const body = extinguisher("ABC", BODY_HOME, "#b73a3c"),
+  wrong = extinguisher("WATER", WATER_HOME, "#4076a0"),
+  low = extinguisher("ABC", LOW_HOME, "#b73a3c", "low");
 wrong.userData.onGrab = () => advance("wrong-part");
 wrong.userData.action = () => advance("wrong-part");
 wrong.userData.onRelease = () => {
@@ -112,9 +268,12 @@ wrong.userData.onRelease = () => {
   wrong.quaternion.identity();
 };
 app.interactables.push(wrong);
-body.userData.onGrab = () => {
-  if (state.step === 1) advance("select");
-  else if (state.step < 1) advance("select");
+// Pickup is deliberately not a state transition.
+body.userData.onGrab = () => {};
+low.userData.onRelease = () => {
+  workspace.attach(low);
+  low.position.set(...LOW_HOME);
+  low.quaternion.identity();
 };
 body.userData.onRelease = () => {
   if (!body.userData.holder) {
@@ -125,49 +284,66 @@ body.userData.onRelease = () => {
     body.quaternion.identity();
   }
 };
-const gauge = label(
-  body,
-  "PRESSURE\nGREEN",
-  [0.075, 0.43, 0.065],
-  0.095,
-  0.075,
-);
-gauge.userData.action = () => advance("pressure");
-app.interactables.push(gauge);
-const pressureAction = makePressureButton(body, () => advance("pressure"));
-app.interactables.push(pressureAction);
-const gaugeCanvas = document.createElement("canvas");
-gaugeCanvas.width = gaugeCanvas.height = 256;
-const gc = gaugeCanvas.getContext("2d");
-gc.fillStyle = "#eef3ee";
-gc.fillRect(0, 0, 256, 256);
-gc.strokeStyle = "#31895b";
-gc.lineWidth = 30;
-gc.beginPath();
-gc.arc(128, 128, 85, Math.PI * 1.1, Math.PI * 1.9);
-gc.stroke();
-gc.strokeStyle = "#a95048";
-gc.beginPath();
-gc.arc(128, 128, 85, Math.PI * 0.9, Math.PI * 1.1);
-gc.stroke();
-gc.beginPath();
-gc.arc(128, 128, 85, Math.PI * 1.9, Math.PI * 2.1);
-gc.stroke();
-gc.strokeStyle = "#172f38";
-gc.lineWidth = 7;
-gc.beginPath();
-gc.moveTo(128, 140);
-gc.lineTo(128, 50);
-gc.stroke();
-gc.font = "bold 26px system-ui";
-gc.textAlign = "center";
-gc.fillStyle = "#143b45";
-gc.fillText("PRESSURE", 128, 208);
-gauge.material.map.dispose();
-gauge.material.map = new THREE.CanvasTexture(gaugeCanvas);
-gauge.material.map.colorSpace = THREE.SRGBColorSpace;
-gauge.material.needsUpdate = true;
-const leverPivot = group(body, "Constrained hinge", [0.075, 0.52, 0]);
+function tankHeld(tank) {
+  return app.renderer.xr.isPresenting
+    ? !!tank.userData.holder
+    : !!tank.userData.desktopHeld ||
+        (tank === body && desktopBody) ||
+        (tank === low && desktopLow);
+}
+function checkTank(tank) {
+  return advance("ready", {
+    held: tankHeld(tank),
+    type: tank.userData.type,
+    pressure: tank.userData.pressure,
+  });
+}
+function addGauge(tank) {
+  const gauge = label(tank, "", [0.04, 0.43, 0.09], 0.11, 0.095);
+  gauge.userData.action = () => checkTank(tank);
+  app.interactables.push(gauge);
+  const button = makePressureButton(tank, () => checkTank(tank));
+  app.interactables.push(button);
+  const gaugeCanvas = document.createElement("canvas");
+  gaugeCanvas.width = gaugeCanvas.height = 256;
+  const gc = gaugeCanvas.getContext("2d");
+  gc.fillStyle = "#eef3ee";
+  gc.fillRect(0, 0, 256, 256);
+  gc.strokeStyle = "#31895b";
+  gc.lineWidth = 30;
+  gc.beginPath();
+  gc.arc(128, 128, 85, Math.PI * 1.1, Math.PI * 1.9);
+  gc.stroke();
+  gc.strokeStyle = "#a95048";
+  gc.beginPath();
+  gc.arc(128, 128, 85, Math.PI * 0.9, Math.PI * 1.1);
+  gc.stroke();
+  gc.beginPath();
+  gc.arc(128, 128, 85, Math.PI * 1.9, Math.PI * 2.1);
+  gc.stroke();
+  gc.strokeStyle = "#172f38";
+  gc.lineWidth = 7;
+  gc.beginPath();
+  gc.moveTo(128, 140);
+  gc.lineTo(
+    tank.userData.pressure === "green" ? 128 : 46,
+    tank.userData.pressure === "green" ? 50 : 126,
+  );
+  gc.stroke();
+  gc.font = "bold 26px system-ui";
+  gc.textAlign = "center";
+  gc.fillStyle = "#143b45";
+  gc.fillText("PRESSURE", 128, 208);
+  gauge.material.map.dispose();
+  gauge.material.map = new THREE.CanvasTexture(gaugeCanvas);
+  gauge.material.map.colorSpace = THREE.SRGBColorSpace;
+  gauge.material.needsUpdate = true;
+  return { gauge, button };
+}
+const gauges = [body, wrong, low].map(addGauge);
+const gauge = gauges[0].gauge;
+const leverPivot = group(body, "Constrained hinge", [0.075, 0.55, 0]);
+leverPivot.rotation.z = -0.3; // Open above the carrying handle; squeeze closes down.
 const lever = box(
   leverPivot,
   "Squeeze lever",
@@ -201,6 +377,10 @@ pin.userData.canGrab = () => {
   if (pinRemoved) return true;
   if (state.step !== 3) {
     advance("pin");
+    return false;
+  }
+  if (!tankHeld(body)) {
+    advance("pin", { slide: 0, tankHeld: false });
     return false;
   }
   return true;
@@ -242,7 +422,10 @@ nozzle.userData.grabZones = NOZZLE_ZONES;
 const spareNozzle = makeNozzle(wrong);
 spareNozzle.position.set(...NOZZLE_HOME);
 spareNozzle.quaternion.copy(holsterRotation);
-for (const tank of [body, wrong]) {
+const lowNozzle = makeNozzle(low);
+lowNozzle.position.set(...NOZZLE_HOME);
+lowNozzle.quaternion.copy(holsterRotation);
+for (const tank of [body, wrong, low]) {
   const coupling = cylinder(
     tank,
     "Brass hose connector",
@@ -257,6 +440,7 @@ app.grabbables.push(nozzle);
 let nozzleRemoved = false,
   squeezing = false,
   desktopBody = false,
+  desktopLow = false,
   desktopNozzle = false,
   desktopSweep = 0;
 nozzle.userData.grabEnabled = () => !state.ended && state.step >= 4;
@@ -282,6 +466,7 @@ nozzle.userData.onRelease = () => {
 };
 const hose = new RubberHose(app.scene),
   spareHose = new RubberHose(app.scene),
+  lowHose = new RubberHose(app.scene),
   powder = new PowderSpray(app.scene, powderTexture());
 const sprayLine = new THREE.Line(
   new THREE.BufferGeometry().setFromPoints([V(), V()]),
@@ -295,14 +480,46 @@ app.scene.add(sprayLine);
 sprayLine.visible = false;
 const flames = [],
   bases = [];
+const equipment = box(
+  workspace,
+  "Energized equipment housing",
+  [1.12, 0.38, 0.2],
+  [0, 0.67, -1.82],
+  material("#273c48"),
+);
+for (const x of [-0.49, 0.49])
+  box(
+    workspace,
+    "Equipment sign support",
+    [0.015, 0.59, 0.015],
+    [x, 1.14, -1.64],
+    material("#526573"),
+  );
+card(workspace, "LIVE ELECTRICAL FIRE", [0, 1.45, -1.6], 1.05, 0.065, {
+  background: "#273c48",
+  color: "#ffdb7f",
+});
+for (const x of [-0.32, 0, 0.32]) {
+  box(
+    workspace,
+    "Electrical panel",
+    [0.27, 0.19, 0.02],
+    [x, 0.65, -1.705],
+    material("#526573"),
+  );
+  card(workspace, "⚡", [x, 0.69, -1.688], 0.07, 0.07, {
+    background: "#526573",
+    color: "#ffdb7f",
+  });
+}
 for (let i = 0; i < 3; i++) {
   const x = (i - 1) * 0.32;
   box(
     workspace,
-    "Fuel tray",
+    "Electrical fire base",
     [0.31, 0.08, 0.3],
     [x, 0.39, -1.6],
-    material("#533d31"),
+    material("#293a43"),
   );
   const f = new THREE.Mesh(
     new THREE.ConeGeometry(0.14, 0.45, 8),
@@ -317,29 +534,39 @@ for (let i = 0; i < 3; i++) {
 function advance(action, ctx) {
   const result = state.event(action, ctx);
   document.querySelector("#notice").textContent = "";
-  if (
-    result &&
-    action === "safety" &&
-    (body.userData.holder || body.userData.desktopHeld || desktopBody)
-  )
-    state.event("select");
   refresh();
   return result;
 }
 function hint() {
-  app.notify(HINTS[state.step] || "Reset for another attempt.");
+  const message =
+    HINTS[state.step] ||
+    "Watch for re-ignition and back away safely. Reset for another attempt.";
+  hintCard.setText(message);
+  hintCard.visible = !hintCard.visible;
+  document.querySelector("#notice").textContent = hintCard.visible
+    ? message
+    : "";
 }
 function refresh() {
+  hintCard.visible = false;
   const text = state.complete
-    ? "COMPLETE"
-    : `${state.step + 1}/8 · ${STEPS[state.step]}`;
+    ? "COMPLETE · FIRE OUT"
+    : `${state.step + 1}/7 · ${STEPS[state.step]}`;
   app.status(text);
   instruction.setText(text);
   feedback.setText(state.message);
   feedback.visible = !!state.message;
-  pressureAction.visible = !state.ended && state.step === 2;
-  stepAction.visible = !state.ended && (state.step === 0 || state.step === 7);
-  stepAction.setText(state.step === 0 ? "CONFIRM SAFETY" : "FINISH");
+  gauges.forEach(({ button }) => {
+    button.visible = !state.ended && state.step === 2;
+  });
+  progressDots.forEach((dot, i) =>
+    dot.material.color.set(
+      i < state.step ? "#6bd4b5" : i === state.step ? "#ffca71" : "#58707b",
+    ),
+  );
+  alarmStatus.setText(state.alarmActive ? "ALARM ACTIVE" : "READY");
+  callStatus.setText(state.helpCalled ? "HELP NOTIFIED / SIM" : "NO REAL CALL");
+  callButton.setText(state.helpCalled ? "CALL SENT" : "CALL HELP");
   for (const button of document.querySelectorAll("#step-controls button")) {
     button.hidden =
       state.ended ||
@@ -371,7 +598,13 @@ function use(down) {
   }
   if (down) {
     if (state.step === 5) {
-      if (!advance("squeeze", { twoHands: twoHands() })) return;
+      if (
+        !advance("squeeze", {
+          twoHands: twoHands(),
+          atBase: !!nozzleTarget(0.15),
+        })
+      )
+        return;
     } else if (state.step < 5) {
       advance("squeeze");
       return;
@@ -382,7 +615,37 @@ function use(down) {
   } else squeezing = false;
 }
 body.userData.use = use;
-nozzle.userData.use = use;
+// The valve is on the tank. Triggering the aiming hand cannot squeeze it.
+nozzle.userData.use = (down) => {
+  if (down && !state.ended)
+    app.notify(
+      "Squeeze with the TANK hand's index trigger. The nozzle hand only aims.",
+    );
+};
+function nozzleTarget(tolerance = 0.17) {
+  app.scene.updateMatrixWorld(true);
+  const tip = nozzle.localToWorld(V(...NOZZLE_OUTLET));
+  const direction = V(0, 0, -1)
+    .applyQuaternion(nozzle.getWorldQuaternion(new THREE.Quaternion()))
+    .normalize();
+  return sprayTarget(tip, direction, tolerance);
+}
+const sprayRaycaster = new THREE.Raycaster();
+function sprayTarget(tip, direction, tolerance = 0.17) {
+  sprayRaycaster.set(tip, direction);
+  sprayRaycaster.far = SPRAY_RANGE;
+  const obstacle = sprayRaycaster.intersectObjects(
+    [bench, equipment],
+    false,
+  )[0];
+  return baseTarget(
+    tip,
+    direction,
+    bases.map((b) => workspace.localToWorld(b.clone())),
+    tolerance,
+    obstacle?.distance ?? Infinity,
+  );
+}
 function reset() {
   app.pointerUp();
   for (let i = 0; i < 2; i++) app.release(i);
@@ -393,8 +656,12 @@ function reset() {
     nozzleRemoved =
     squeezing =
     desktopBody =
+    desktopLow =
     desktopNozzle =
       false;
+  alarmTravel = 0;
+  alarmHandle.userData.onRelease();
+  callPressedUntil = 0;
   desktopSweep = 0;
   workspace.attach(body);
   body.position.set(...BODY_HOME);
@@ -407,8 +674,9 @@ function reset() {
   nozzle.quaternion.copy(holsterRotation);
   powder.clear();
   sprayLine.visible = false;
-  leverPivot.rotation.z = 0;
+  leverPivot.rotation.z = -0.3;
   wrong.userData.onRelease();
+  low.userData.onRelease();
   flames.forEach((f) => {
     f.visible = true;
     f.scale.y = 1;
@@ -417,15 +685,20 @@ function reset() {
 }
 function desktopHoldBody() {
   if (state.ended) return;
-  if (state.step < 1) {
-    advance("select");
-    return;
-  }
+  desktopLow = false;
+  low.userData.onRelease();
   desktopBody = !desktopBody;
   if (desktopBody) {
     body.position.set(-0.3, 0.85, -0.5);
     body.userData.onGrab();
   } else body.userData.onRelease();
+}
+function desktopHoldLow() {
+  if (state.ended) return;
+  desktopBody = false;
+  body.userData.onRelease();
+  desktopLow = !desktopLow;
+  if (!desktopLow) low.userData.onRelease();
 }
 function desktopHoldNozzle() {
   if (state.ended) return;
@@ -447,19 +720,30 @@ function desktopAim() {
   }
   nozzle.lookAt(workspace.localToWorld(bases[1].clone()));
   nozzle.rotateY(Math.PI);
-  advance("aim");
+  advance("aim", { nozzleHeld: true, atBase: !!nozzleTarget(0.15) });
 }
 for (const [id, fn] of [
   ["hint", hint],
   ["reset", () => reset()],
-  ["safety", () => advance("safety")],
+  [
+    "alarm",
+    () => {
+      if (advance("alarm", { slide: 0.11 })) {
+        alarmTravel = 0.11;
+        alarmHandle.userData.onRelease();
+      }
+    },
+  ],
+  ["call", () => callButton.userData.action()],
   ["body", desktopHoldBody],
-  ["pressure", () => advance("pressure")],
+  ["low", desktopHoldLow],
+  ["water", () => advance("wrong-part")],
+  ["pressure", () => checkTank(tankHeld(low) ? low : body)],
   ["nozzle", desktopHoldNozzle],
   [
     "pin",
     () => {
-      if (advance("pin")) {
+      if (advance("pin", { slide: 0.2, tankHeld: tankHeld(body) })) {
         pinRemoved = true;
         workspace.attach(pin);
         pin.position.set(...TRAY_HOME);
@@ -467,7 +751,6 @@ for (const [id, fn] of [
     },
   ],
   ["aim-nozzle", desktopAim],
-  ["verify", () => advance("verify")],
 ]) {
   document.querySelector("#" + id).onclick = fn;
 }
@@ -496,7 +779,7 @@ function centerWorkspace() {
   if (head.y < 0.5) return false; // Wait for the first valid local-floor pose.
   const forward = app.camera.getWorldDirection(V());
   for (let i = 0; i < 2; i++) app.release(i);
-  desktopBody = desktopNozzle = squeezing = false;
+  desktopBody = desktopLow = desktopNozzle = squeezing = false;
   workspace.position.set(head.x, head.y - 1.6, head.z);
   workspace.rotation.y = Math.atan2(-forward.x, -forward.z);
   workspace.updateMatrixWorld(true);
@@ -505,7 +788,7 @@ function centerWorkspace() {
 }
 app.onXR = (active) => {
   app.pointerUp();
-  desktopBody = desktopNozzle = squeezing = false;
+  desktopBody = desktopLow = desktopNozzle = squeezing = false;
   recenterPending = active;
   lastX = false;
   if (!active) {
@@ -544,6 +827,31 @@ app.update = (dt, t) => {
     }
   }
   app.scene.updateMatrixWorld(true);
+  if (alarmPulling) {
+    if (!state.alarmActive && alarmHandle.userData.holder && alarmGripOffset) {
+      alarmHandle.position.copy(alarmGripOffset);
+      alarmHandle.updateWorldMatrix(true, false);
+    }
+    alarmTravel = state.alarmActive
+      ? 0.11
+      : alarmSlide(alarm, alarmHandle.getWorldPosition(V()), ALARM_HOME[1]);
+    const point = alarm.localToWorld(
+      V(ALARM_HOME[0], ALARM_HOME[1] - alarmTravel, ALARM_HOME[2]),
+    );
+    alarmHandle.position.copy(alarmHandle.parent.worldToLocal(point));
+    alarmHandle.quaternion.copy(
+      alarmHandle.parent
+        .getWorldQuaternion(new THREE.Quaternion())
+        .invert()
+        .multiply(alarm.getWorldQuaternion(new THREE.Quaternion())),
+    );
+    if (!state.alarmActive && alarmTravel >= 0.09)
+      advance("alarm", { slide: alarmTravel });
+  }
+  alarmLamp.material.emissiveIntensity = state.alarmActive
+    ? 0.6 + 0.5 * Math.sin(t * 5)
+    : 0;
+  callButton.position.z = app.elapsed < callPressedUntil ? 0.037 : 0.045;
   if (pulling && !pinRemoved) {
     // Re-evaluate from the original grip offset instead of accumulating the
     // previous frame's constraint correction into the controller attachment.
@@ -564,8 +872,13 @@ app.update = (dt, t) => {
         .multiply(body.getWorldQuaternion(new THREE.Quaternion())),
     );
     if (slide > 0.15) {
-      pinRemoved = true;
-      advance("pin");
+      if (advance("pin", { slide, tankHeld: tankHeld(body) }))
+        pinRemoved = true;
+      else {
+        // If the tank hand was released mid-pull, do not latch the pin or spam
+        // one error every animation frame. A new deliberate grip can retry.
+        pulling = false;
+      }
     }
   }
   const anchor = body.localToWorld(V(...HOSE_ANCHOR));
@@ -597,36 +910,32 @@ app.update = (dt, t) => {
       wrong.getWorldQuaternion(new THREE.Quaternion()),
     ),
   );
+  lowHose.update(
+    low.localToWorld(V(...HOSE_ANCHOR)),
+    lowNozzle.localToWorld(V(...NOZZLE_REAR)),
+    V(1, 0, 0).applyQuaternion(low.getWorldQuaternion(new THREE.Quaternion())),
+  );
   tip = nozzle.localToWorld(V(...NOZZLE_OUTLET));
   const dir = V(0, 0, -1)
     .applyQuaternion(nozzle.getWorldQuaternion(new THREE.Quaternion()))
     .normalize();
-  const targets = bases
-    .map((b) => workspace.localToWorld(b.clone()))
-    .map((b, i) => ({
-      i,
-      d: new THREE.Ray(tip, dir).distanceToPoint(b),
-      ahead: b.clone().sub(tip).dot(dir),
-    }))
-    .filter((x) => x.ahead > 0)
-    .sort((a, b) => a.d - b.d);
-  const target = targets[0];
-  if (state.step === 4 && nozzleRemoved && target?.d < 0.15) {
-    advance("aim");
+  const target = sprayTarget(tip, dir);
+  if (state.step === 4 && nozzleRemoved && target?.distance < 0.15) {
+    advance("aim", { nozzleHeld: true, atBase: true });
   }
   if (!twoHands()) squeezing = false;
-  leverPivot.rotation.z = squeezing ? -0.3 : 0;
+  leverPivot.rotation.z = squeezing ? 0 : -0.3;
   sprayLine.visible = !state.ended && nozzleRemoved && !squeezing;
-  sprayLine.material.color.set(target?.d < 0.15 ? "#5de676" : "#6ab6e5");
+  sprayLine.material.color.set(target?.distance < 0.15 ? "#5de676" : "#6ab6e5");
   if (sprayLine.visible) {
-    const end = tip.clone().addScaledVector(dir, 1.5);
+    const end = tip.clone().addScaledVector(dir, SPRAY_RANGE);
     const ps = sprayLine.geometry.attributes.position;
     ps.setXYZ(0, ...tip.toArray());
     ps.setXYZ(1, ...end.toArray());
     ps.needsUpdate = true;
   }
   if (squeezing) {
-    if (target?.d < 0.17) {
+    if (target) {
       const prev = state.step;
       state.spray(target.i, dt);
       if (state.step !== prev) {
@@ -642,7 +951,7 @@ app.update = (dt, t) => {
     f.scale.y = Math.max(0.01, remaining * (1 + 0.07 * Math.sin(t * 8 + i)));
   });
   const active = !state.ended
-    ? [board, body, gauge, pin, nozzle, lever, nozzle, board][state.step]
+    ? [alarmHandle, callButton, gauge, pin, nozzle, lever, nozzle][state.step]
     : null;
   focusOutline.visible = !!active;
   if (active) focusOutline.setFromObject(active);
@@ -671,4 +980,8 @@ app.inspect = () => ({
   complete: state.complete,
   twoHands: twoHands(),
   pinRemoved,
+  alarmActive: state.alarmActive,
+  helpCalled: state.helpCalled,
+  toolReady: state.toolReady,
+  alarmTravel,
 });

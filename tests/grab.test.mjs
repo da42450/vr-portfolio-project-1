@@ -36,9 +36,7 @@ function fixture() {
   const state = new Procedure();
   pin.userData.grabEnabled = () => state.step >= 3;
   nozzle.userData.grabEnabled = () => state.step >= 4;
-  body.userData.onGrab = () => {
-    if (state.step < 2) state.event("select");
-  };
+  body.userData.onGrab = () => {};
   const hands = [new THREE.Group(), new THREE.Group()];
   hands.forEach((hand, i) => {
     hand.userData.hand = i;
@@ -58,7 +56,8 @@ function fixture() {
 
 test("carry handle and tank are grabbable, even though their modelling origin is far away", () => {
   const { app, body, pin, state, worldPoint } = fixture();
-  state.event("safety");
+  state.event("alarm", { slide: 0.11 });
+  state.event("call");
   const handle = worldPoint(body, BODY_ZONES[0].center);
   assert.ok(
     handle.distanceTo(worldPoint(body)) > 0.23,
@@ -79,12 +78,18 @@ test("carry handle and tank are grabbable, even though their modelling origin is
 
 test("actual controller grab attaches the handle to the hand; pin is available after pressure inspection", () => {
   const { app, body, pin, state, worldPoint } = fixture();
-  state.event("safety");
+  state.event("alarm", { slide: 0.11 });
+  state.event("call");
   app.hands[0].position.copy(worldPoint(body, BODY_ZONES[0].center));
   app.grab(0);
   assert.equal(body.userData.holder, app.hands[0]);
   assert.equal(app.hands[0].userData.held, body);
   assert.equal(state.step, 2);
+  assert.equal(
+    state.toolReady,
+    false,
+    "pickup alone is not a procedural outcome",
+  );
   app.hands[0].position.add(new THREE.Vector3(0.2, 0.15, 0.1));
   app.hands[0].rotation.y = 0.8;
   assert.ok(
@@ -92,7 +97,7 @@ test("actual controller grab attaches the handle to the hand; pin is available a
       worldPoint(app.hands[0]),
     ) < 1e-6,
   );
-  state.event("pressure");
+  state.event("ready", { held: true, type: "ABC", pressure: "green" });
   app.hands[1].position.copy(worldPoint(pin));
   app.grab(1);
   assert.equal(pin.userData.holder, app.hands[1]);

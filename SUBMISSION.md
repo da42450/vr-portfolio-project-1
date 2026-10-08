@@ -18,12 +18,12 @@ The latest APK is `Demo2_Trainer/Builds/demo2-v1.0.4.apk` (ignored by Git), publ
 
 ## On-device checks
 
-| Demo | Check before recording                                                                                                                                                                          |
-| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1    | Desktop steady frame rate; maps/specular/shadows visible; rider switch; compensated world tilt                                                                                                  |
-| 2    | Install/launch; headset + both controllers; fast contact and swing direction; all board buttons; bounce readout; audio; repetition/score; sustained headset frame rate                          |
-| 3    | Both hand grips/releases; wrong part/order recovery; pin travel; pressure selection; nozzle tether; two-handed squeeze; all three spray zones; verify/reset/hint; readable panels; frame rate   |
-| 4    | Complete hunt entirely with teleport, then smooth; doorways/collisions; both turning modes; stereo vignette/fade; speed/calibration/reset; persisted settings after browser restart; frame rate |
+| Demo | Check before recording                                                                                                                                                                                                                  |
+| ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | Desktop steady frame rate; maps/specular/shadows visible; rider switch; compensated world tilt                                                                                                                                          |
+| 2    | Install/launch; headset + both controllers; fast contact and swing direction; all board buttons; bounce readout; audio; repetition/score; sustained headset frame rate                                                                  |
+| 3    | Alarm slider; simulated call; held-tool/low-pressure/WATER checks and recovery; both grips/releases; pin; nozzle tether; tank-hand squeeze; three spray zones/obstruction; automatic completion/reset/hint; readable panels; frame rate |
+| 4    | Complete hunt entirely with teleport, then smooth; doorways/collisions; both turning modes; stereo vignette/fade; speed/calibration/reset; persisted settings after browser restart; frame rate                                         |
 
 Record observed frame rates and any adjustments in the relevant README. For Demos 3/4 the Exceeds delivery row specifically requires headset frame rate; don't substitute the in-app desktop counter.
 

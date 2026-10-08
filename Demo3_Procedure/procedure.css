@@ -2,6 +2,22 @@
   width: 280px;
   padding: 14px;
 }
+.procedure #hud h1 {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+.procedure #status {
+  padding: 10px;
+  background: #193d49;
+  color: #eef9f5;
+  border-radius: 10px;
+}
+.procedure .controls {
+  gap: 7px;
+}
+.procedure .controls button {
+  border-radius: 9px;
+}
 .procedure [hidden] {
   display: none !important;
 }
