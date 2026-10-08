@@ -30,6 +30,7 @@ export class Hunt {
     if (this.started && !this.complete) this.elapsed += dt;
   }
   select(code) {
+    if (this.complete) return "Hunt complete. Start a new hunt to play again.";
     this.started = true;
     if (this.found.has(code)) return "Already collected.";
     if (!TARGETS.includes(code)) {

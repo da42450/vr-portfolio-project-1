@@ -2,6 +2,8 @@
 
 CSCI 4830, University of Georgia, Fall 2026. Due October 8, 2026, 11:59 pm.
 
+Course submission repository: [ugavrclass2026/portfolio-1-da42450](https://github.com/ugavrclass2026/portfolio-1-da42450) (private). This public repository provides GitHub Pages hosting; the course repository receives the same development history and a tagged Quest APK Release.
+
 **Headshot:** add your own photo at `headshot.jpg` before submission.
 
 **Bio:** Daniel Aguilar is a student taking Virtual Reality at the University of Georgia. This portfolio demonstrates graphics, simulation, manipulation, and locomotion through four focused interactive applications.
@@ -30,7 +32,7 @@ Desktop controls provide inspection; headset/controller interaction and headset 
 
 ## Submission status
 
-Source is pushed to this public repository, with automatic GitHub Pages deployment and a downloadable APK Release. That does not establish headset performance or the video gates. Complete [SUBMISSION.md](SUBMISSION.md) to confirm the professor's course-repository requirement, add your videos/headshot, and report on-device results. [RUBRIC.md](RUBRIC.md) maps each point-bearing criterion to its implementation and required evidence. [QUIZ_GUIDE.md](QUIZ_GUIDE.md) explains the actual code in lecture vocabulary.
+Source is pushed to this public repository, with automatic GitHub Pages deployment and a downloadable APK Release. That does not establish headset performance or the video gates. The October 8 [audit](AUDIT.md) separates implemented features from missing evidence; [recording directions/scripts](RECORDING_GUIDE.md) cover all four videos. Complete [SUBMISSION.md](SUBMISSION.md) to add your videos/headshot and report on-device results. [RUBRIC.md](RUBRIC.md) maps each point-bearing criterion to its implementation and required evidence. [QUIZ_GUIDE.md](QUIZ_GUIDE.md) explains the actual code in lecture vocabulary.
 
 Every push to `main` runs `.github/workflows/pages.yml`: install pinned dependencies, run tests/checks, package static files, then deploy to Pages. Unity source and build caches are excluded from the published website; the APK is a separate GitHub Release asset.
 

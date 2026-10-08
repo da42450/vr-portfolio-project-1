@@ -1,8 +1,8 @@
 # Finish the submission
 
-## Course repository (human setup required)
+## Course repository
 
-The project is pushed to the supplied [public hosting repository](https://github.com/da42450/vr-portfolio-project-1). The rubric's professor-created private course repository is a separate requirement: confirm whether your submitted repository satisfies it. If not, in class Discord run `/accept portfolio-project-1 github:<your GitHub username>` and accept the GitHub invitation, then push the same milestone history to that repository as well. Keep the public repository for Pages hosting.
+The required private course repository is [ugavrclass2026/portfolio-1-da42450](https://github.com/ugavrclass2026/portfolio-1-da42450), supplied by the student on October 8. The public [hosting repository](https://github.com/da42450/vr-portfolio-project-1) remains separate. The local `course` remote targets the private repo; `origin` targets public hosting. Preserve both development histories and keep the original course starter README in `COURSE_STARTER_README.md`. Every final evidence/docs change must reach the course repo before the deadline; pushing only origin does not submit it.
 
 ## Web hosting
 
@@ -12,7 +12,7 @@ The web package includes `index.html`, `Shared/`, `Demo1_Ride/`, `Demo3_Procedur
 
 ## APK release
 
-The latest APK is `Demo2_Trainer/Builds/demo2-v1.0.4.apk` (ignored by Git), published in the [demo2-v1.0.4 Release](https://github.com/da42450/vr-portfolio-project-1/releases/tag/demo2-v1.0.4) with the provided [release notes](Demo2_Trainer/RELEASE_NOTES.md). v1.0.4 fixes the machine-feed arc; exact results are in [the dated feed record](Demo2_Trainer/Validation/feed.md). It preserves the v1.0.3 settings panel the student confirmed readable/working, the comfortable v1.0.2 grip and the verified v1.0.1 startup fix. Do not use v1.0, which froze on the school Quest 3. Remaining gameplay/controller/audio checks are still pending. Download the latest Release asset and complete those checks on your Quest. If the course repository differs from this public repository, attach the same APK and notes to its Release too. Rebuild/release after any Unity code change.
+The latest APK is `Demo2_Trainer/Builds/demo2-v1.0.4.apk` (ignored by Git), published in the [public demo2-v1.0.4 Release](https://github.com/da42450/vr-portfolio-project-1/releases/tag/demo2-v1.0.4) with the provided [release notes](Demo2_Trainer/RELEASE_NOTES.md). The required course copy belongs in its own [demo2-v1.0.4 Release](https://github.com/ugavrclass2026/portfolio-1-da42450/releases/tag/demo2-v1.0.4). v1.0.4 fixes the machine-feed arc; exact results are in [the dated feed record](Demo2_Trainer/Validation/feed.md). It preserves the v1.0.3 settings panel the student confirmed readable/working, the comfortable v1.0.2 grip and the verified v1.0.1 startup fix. Do not use v1.0, which froze on the school Quest 3. Remaining gameplay/controller/audio checks are still pending. Download the latest Release asset and complete those checks on your Quest. Rebuild/release after any Unity code change.
 
 ## On-device checks
 

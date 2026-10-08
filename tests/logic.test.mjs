@@ -70,6 +70,40 @@ test("guided completion freezes progress and reset starts a clean walkthrough", 
   assert.deepEqual(p.coverage, [0, 0, 0]);
   assert.equal(p.message, "");
 });
+test("completed hunt freezes score and selections until reset", () => {
+  const h = new Hunt();
+  h.select("AX-140");
+  h.tick(10);
+  TARGETS.forEach((code) => h.select(code));
+  const final = {
+    found: [...h.found],
+    elapsed: h.elapsed,
+    errors: h.errors,
+    score: h.score,
+    started: h.started,
+  };
+  for (const code of ["AX-140", TARGETS[0], "UNKNOWN"]) {
+    assert.match(h.select(code), /Hunt complete/);
+  }
+  h.tick(30);
+  assert.deepEqual(
+    {
+      found: [...h.found],
+      elapsed: h.elapsed,
+      errors: h.errors,
+      score: h.score,
+      started: h.started,
+    },
+    final,
+  );
+  h.reset();
+  assert.equal(h.complete, false);
+  assert.equal(h.started, false);
+  assert.equal(h.score, 1000);
+  assert.equal(h.found.size, 0);
+  assert.match(h.select(TARGETS[0]), /Collected/);
+  assert.equal(h.found.size, 1);
+});
 test("saved settings reject invalid modes and clamp unsafe speed values", () => {
   assert.deepEqual(
     validSettings({ locomotion: "bad", turn: "bad", speed: 99 }),

@@ -1,0 +1,89 @@
+# Portfolio audit — October 8, 2026
+
+Scope: CSCI 4830 undergraduate; professor's [current assignment](https://vr26.vn.ugavel.com/PortfolioProject1/), all four demos' source and READMEs, existing Unity validation/build records, public deployment, release assets, repository history and automated tests. This is an evidence audit, not a grade guarantee.
+
+## Verdict
+
+The core point-bearing mechanisms are implemented in all four demos. There is no missing Unity requirement for Demos 1, 3 or 4, and an immersive version of Demo 1 is optional. Guided-only Demo 3 is sufficient: an assessment mode is not required. Artistic polish is not a grading category.
+
+The submission is **not yet full-marks ready**. All four video links and a headshot are missing from the submitted documentation; the exact AI model/version inventory is incomplete; several physical-headset checks remain unverified. The student created the required private course repository during this audit and authorized transferring the source/history and APK there. Its initial contents were only a starter README. See the final chat handoff for the transfer/deployment result.
+
+Deadline: **today, Thursday October 8, 2026, 11:59 pm America/New_York**. The professor grades the course repository's deadline snapshot, not just this public hosting repository.
+
+## Evidence and findings
+
+- The deployed Demo 1 renders and switches ground/rider and day/night. Its leveling diagnostic showed nonzero tilt with the injected fault and 0.00° when restored. Source confirms an actual camera parent in the seat hierarchy, not a copied camera position. The background in-app browser showed roughly 21–24 FPS in the ride inspection; that is not evidence of satisfactory foreground desktop performance. Check on the browser/machine used for recording.
+- The deployed Demo 3 desktop path completed all eight states, retained its one wrong-part error through recovery, reached 100% coverage on all three regions, and reset to the start. The pressure button, curved hose and white spray render. This is not proof of physical Quest grip, pin/tether mechanics or stereo performance.
+- The deployed Demo 4 renders its warehouse/signage and exposes its controls. Source contains 25 stock boxes, exactly five target IDs, four regions, both locomotion mechanisms and the complete comfort menu. Whole-hunt Quest navigation, both turning modes, stereo vignette/fade, height handling and restart persistence remain physical checks.
+- All browser-demo main modules and the shared runtime matched the public site's source before this audit's hunt fix. Public HTTPS pages are accessible. The latest public Pages job had failed because no hosted runner acquired it; no build/test step ran. The Demo 2 landing page was consequently stale and offered v1.0.3, while the public v1.0.4 release/download was accessible. A new deployment was authorized.
+- Existing dated Unity records establish v1.0.4 build/signature/install/scene startup and student-confirmed paddle comfort, menu operation and corrected feeds. They establish neither a sustained gameplay benchmark nor all audio/contact checks. Numerical and actual-scene tests cover all 24 feed presets; minimum modeled net clearance is 7.29 cm. The stored rebound results are 23.004 cm numerically and 23.054 cm in the editor. Repeat the bounce check on Quest and use the observed value in the video.
+- A reproduced hunt issue allowed wrong selections after completion to lower the score. With student approval, `Hunt.select` now exits immediately after completion. A new regression checks frozen selections/errors/time/score and normal behavior after reset. This is a small state-logic correction, not a redesign.
+- Folder names, controls, sources, known issues, meaningful milestone commits and ignore rules are present. No APK, Unity Library/build/cache folder or node_modules is tracked. The supplied APK is a release asset. Required personal evidence is still marked pending; those placeholders must not remain at submission.
+
+## Criterion-by-criterion implementation review
+
+“Implemented” below means the code supports the criterion. It does not mean the required video or headset evidence has been provided.
+
+### Demo 1 — Ferris wheel, 15 points
+
+| Criterion      | Code/evidence present                                                                                                     | Still prove in your video                                                                                           |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Hierarchy, 5   | Base yaw, wheel roll, inverse-roll leveling pivot and rocking seat; local transforms in code; zero world-tilt diagnostic. | Moving nested levels; level cabins while the wheel rotates; inject and restore compensation.                        |
+| Graphics, 3    | Original tapered cabin with four UV wall strips; textured surroundings; color, normal and emission maps.                  | A close view of the authored cabin and visible map comparison; explain the UV layout.                               |
+| Lighting, 3    | Directional daylight, point/spot night lights, material highlights, deliberate 1024²/512² shadow maps.                    | Night mode; diffuse/specular examples; visible shadow toggle and extra depth-pass cost.                             |
+| Views, 2       | Ground/rider switch; camera is a child of `RockingSeat0`.                                                                 | Rider motion inherited from ancestors, then return to ground.                                                       |
+| Explanation, 2 | A real inward-normal/winding error is documented and regression tested; the leveling fault is a separate diagnostic.      | Explain how the normal-direction test found the real error. Do not present the injected fault as an accidental bug. |
+
+No headset recording/inset is required for the current desktop-only Demo 1. Check steady foreground performance and avoid framing the normal/emission comparison from too far away.
+
+### Demo 2 — Unity table-tennis trainer, 15 points
+
+| Criterion          | Code/evidence present                                                                                                               | Still prove in your video                                                                                                                                            |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Physics systems, 4 | Force-aware machine feed; gravity, drag and Magnus; moving-paddle contact; restitution/friction/spin bounce and rolling; wind.      | Compare spin-dependent bounce and crosswind, not just toggle buttons without showing their effects.                                                                  |
+| Accuracy, 4        | SI dimensions/parameters with provenance; calibrated drop benchmark; fixed 180 Hz with four substeps and continuous segment checks. | Run the Quest bounce check; state measured rebound and published reference; demonstrate fast hits registering.                                                       |
+| Tracking, 2        | Kinematic controller paddle; linear/angular velocity derived from tracked poses; grip alignment already student-confirmed.          | Slow versus faster and directional swings with visibly different ball outcomes.                                                                                      |
+| Audio, 2           | World-positioned approach, impact and ambience sources; different table/paddle/floor tones; intensity/pitch depend on speed.        | Audible approach and soft/hard/material comparisons in the final recording. Leave a brief pause in narration.                                                        |
+| Practice, 1        | Single/auto feed, speed/spin readouts, returns, score and rotating target zones.                                                    | Repetition and feedback. Ideally show a target hit, not only feeds.                                                                                                  |
+| Explanation, 2     | Timestep, sweeps, contact impulse and bounded workload are documented; physics CPU telemetry is implemented.                        | Explain accuracy and performance choices using measured values. At 72 Hz the whole frame budget is 13.89 ms; the last physics-step readout is only part of the cost. |
+
+Do not call the entire simulator physically validated. The table restitution was calibrated to a published benchmark; the drag/lift/friction/rolling model includes stated simplifications. A filmed real 30 cm table-tennis drop would strengthen the evidence if equipment is available, but do not invent such a test. Speed sets the forward launch component, not total 3D ball speed. Spin affects both flight and contact; the corrected feeder compensates its initial arc, so compare the bounce/outgoing travel too.
+
+### Demo 3 — guided PASS procedure, 15 points
+
+| Criterion           | Code/evidence present                                                                                                                               | Still prove in your video                                                                                                                                           |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Procedure, 4        | Eight ordered states, prerequisites, wrong-part/order feedback, three coverage timers, completion/reset; errors preserve progress.                  | Grab WATER, recover with ABC without Reset, finish all steps and reset afterwards.                                                                                  |
+| Manipulation, 4     | Both controller grips/releases, offset-correct attachment, snap tray/holster, body-frame pin slider, lever hinge and distinct-hand tank/nozzle use. | Actual controller manipulation, constrained pin pull, two-handed squeeze, release/snap and tether behavior. Desktop shortcut buttons do not establish these points. |
+| Guidance/content, 3 | Current in-world step/highlight, context-specific actions, Hint, cited USFA/OSHA guidance.                                                          | Use Hint; point out the current highlight; cite the source and distinguish a classroom simulation from certification.                                               |
+| Delivery, 2         | Public HTTPS WebXR entry and controller bindings are implemented.                                                                                   | Complete a real Quest run at its refresh rate without unexpected setup/input problems.                                                                              |
+| Explanation, 2      | Separate state/event logic; local grip volumes and constrained coordinates; ray coverage and pooled visual particles.                               | Explain event detection/recovery and predictable scripted mechanics versus realism. Do not call the particles a physical fire-extinguishing simulation.             |
+
+Use side GRIP to hold and index trigger to select/spray. For a simple sequence, tank in left hand; pin/nozzle in right. Free the right hand after pressure/pin/nozzle use when selecting menu actions. Pressure CHECK appears only at inspection; Finish appears only at the final step. No test mode is needed.
+
+### Demo 4 — warehouse hunt, 15 points
+
+| Criterion      | Code/evidence present                                                                                                             | Still prove in your video                                                                                                                                                      |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Search, 4      | Four signed regions and dispatch landmark; five exact codes among twenty similar distractors; progress/timer/score.               | Travel among regions, read look-alike codes closely, demonstrate a wrong selection and finish the hunt.                                                                        |
+| Locomotion, 4  | Head-relative smooth travel and ballistic-ray teleport/fade; both collision-bound and switchable in-world.                        | Use both through doorways; explain which suits this warehouse and the comfort/speed tradeoff. Rehearse a complete hunt with each mechanism separately.                         |
+| Comfort, 3     | Motion vignette, snap/smooth turn, teleport fade, speed, seated mode/calibration, reset view, validated localStorage preferences. | Every setting in the world; visible movement effects; exit/reload/re-enter and show preferences retained. Saved preferences do not include old physical pose or hunt progress. |
+| Delivery, 2    | Public HTTPS WebXR path implemented.                                                                                              | Actual Quest control/stereo behavior and sustained headset frame rate.                                                                                                         |
+| Explanation, 2 | Coordinate-frame rules and sensory-conflict reasoning are documented.                                                             | Relate each comfort choice to artificial visual motion without matching vestibular acceleration. No guarantee that any option prevents sickness.                               |
+
+After completion, the corrected state model freezes score/errors/selections until New Hunt. The capture frame rate is not the headset rendering rate. Demos 3/4 hide the desktop HUD in immersive mode, so desktop FPS is not headset evidence; use a permitted headset metrics overlay or an actual immersive-session measurement and report how it was measured. If that measurement cannot be made, delivery's top band remains unverified.
+
+## Cross-portfolio requirements, 40 points
+
+- **Deployment, 5:** public browser links and installable tagged APK with useful notes are present. Refresh the stale public landing link and attach the same APK to a tagged release in the private course repo. Keep hosting available through grading/quiz.
+- **Repository/docs, 5:** correct structure/history/hygiene and technical documentation are present. Add a real displayed headshot, confirm the short bio, complete exact AI model/version details, and place all four YouTube links in both the root table and corresponding demo READMEs. Push final evidence to the private course repo, not only public origin.
+- **Quiz, 30:** not earned by implementation. Study [QUIZ_GUIDE.md](QUIZ_GUIDE.md), run each feature yourself, and explain the specific code choices without notes. No graduate study is required for CSCI 4830.
+
+## Finish order
+
+1. Finish course-repo/APK/public-deployment transfer and verify it.
+2. Run the unverified physical Quest checks before filming; correct any actual problem reported.
+3. Make four narrated 3–6 minute YouTube videos using [RECORDING_GUIDE.md](RECORDING_GUIDE.md). Demos 2/3/4 need a live-action inset for the entire video.
+4. Add your genuine headshot, confirm bio/AI inventory, and record honest measurements/known issues.
+5. Add all video URLs, test playback signed out, push both repositories before the deadline, and confirm the course repo's final commit/release.
+6. Rehearse for the individualized paper quiz. A running feature that is absent from the video can still be graded as missing.
