@@ -2,6 +2,8 @@
 
 Prepared October 8, 2026 for Daniel Aguilar's actual four demos. Read [AUDIT.md](AUDIT.md) first: implementation exists, but required personal evidence remains incomplete. These scripts describe features you must demonstrate, not observations to claim before testing.
 
+For the latest word-for-word narration, use [DEMO_VIDEO_SCRIPTS.md](DEMO_VIDEO_SCRIPTS.md). It has bold spoken action cues, silent pauses for performing each action, simple required explanations and the exact warehouse target/scoreboard locations. Read the bold cues aloud; do not read the pause notes. It targets every demo rubric row without inventing headset measurements.
+
 ## Required format
 
 The [professor's assignment](https://vr26.vn.ugavel.com/PortfolioProject1/) requires one narrated **3–6 minute YouTube video per demo**, public or unlisted, showing you operating the running application. A voice-only recording, silent gameplay, slides or a long code walkthrough is not compliant. For the three immersive demos, headset footage and a live-action view of you must be visible together **throughout** the final video. Desktop-only Demo 1 does not require that VR inset. Aim for about 4:30 for Demo 1 and 5:15 for each VR demo; actions take time, so rehearse with a timer.

@@ -18,7 +18,7 @@ adb shell am start -n com.danielaguilar.portfolio.spintrainer/com.unity3d.player
 
 Alternatively drag the APK into Meta Quest Developer Hub or SideQuest. Launch it from Unknown Sources. The APK is published as a **Release asset**, not a Git source file. This Unity application is not a WebXR browser build.
 
-Release: [demo2-v1.0.4](https://github.com/da42450/vr-portfolio-project-1/releases/tag/demo2-v1.0.4) · [download APK](https://github.com/da42450/vr-portfolio-project-1/releases/download/demo2-v1.0.4/demo2-v1.0.4.apk). The older v1.0 release uses GameActivity and froze on the school Quest 3; do not use it. Video: **pending your YouTube link**.
+Release: [course demo2-v1.0.4](https://github.com/ugavrclass2026/portfolio-1-da42450/releases/tag/demo2-v1.0.4) · [public mirror](https://github.com/da42450/vr-portfolio-project-1/releases/tag/demo2-v1.0.4) · [download APK](https://github.com/da42450/vr-portfolio-project-1/releases/download/demo2-v1.0.4/demo2-v1.0.4.apk). The older v1.0 release uses GameActivity and froze on the school Quest 3; do not use it. Video: [YouTube — narrated Quest demonstration](https://youtu.be/c6n03vLm3SU).
 
 ## Startup compatibility fix
 
@@ -85,7 +85,7 @@ The net's dimensions/collider and all force/contact coefficients are unchanged. 
 
 See [PARAMETERS.md](PARAMETERS.md) for every sourced quantity, derived quantity and explicitly labeled assumption. The numerical benchmark is **23.004 cm**, the actual editor scene measurement **23.054 cm**, against the ITTF's approximately **23 cm** bounce for a **30 cm** drop. Run Bounce check on Quest and show this comparison. Spin-dependent bounce and high-speed segment detection also passed numerical checks.
 
-Known limits: constant approximate drag, bounded approximate lift, simple friction/rolling, a rigid elliptical paddle, no deformable rubber or measured brand-specific coefficients. The code is a real-time teaching model, not a professional predictive simulator. The automatic Unity Editor search index emitted an internal editor exception during play verification; the application scripts produced no runtime exception, and the scene's bounce routine completed. Basic right-controller tracking/feed now passes on Quest; the remaining input/contact/audio checks and compliant video are pending.
+Known limits: constant approximate drag, bounded approximate lift, simple friction/rolling, a rigid elliptical paddle, no deformable rubber or measured brand-specific coefficients. The code is a real-time teaching model, not a professional predictive simulator. The automatic Unity Editor search index emitted an internal editor exception during play verification; the application scripts produced no runtime exception, and the scene's bounce routine completed. On October 8 the student reported the app working on a different, regular Meta Quest and supplied the linked personal recording. A spot-reviewed panel shows about 72 FPS and a 23.05 cm rebound; those are snapshots, not an independent sustained benchmark. Headset game audio is retained beneath prerecorded narration, with live-action footage alongside the Quest image throughout.
 
 ## Video proof (about 5 minutes)
 

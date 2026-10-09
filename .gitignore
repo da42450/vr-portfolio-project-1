@@ -27,6 +27,12 @@
 *.aab
 *.unitypackage
 
+# Personal video recordings are submitted through YouTube, not Git
+Edited/
+*.mp4
+*.mov
+*.m4a
+
 # IDE and platform files
 *.csproj
 *.sln

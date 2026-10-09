@@ -18,7 +18,7 @@ The bench automatically centers in front of your head at VR entry and adjusts it
 
 Hint and Reset also exist in the world. Desktop buttons appear only for the current step and simulate the same checked events; these HTML controls are not visible in immersive VR. Space toggles spray; J steps through sweep sections; arrows adjust the nozzle continuously. H requests a hint; R resets. Shift-drag chooses the left simulated hand. Desktop completion is **not** evidence of real VR manipulation.
 
-Deployment: [GitHub Pages / WebXR](https://da42450.github.io/vr-portfolio-project-1/Demo3_Procedure/). Video: **pending your YouTube link**.
+Deployment: [GitHub Pages / WebXR](https://da42450.github.io/vr-portfolio-project-1/Demo3_Procedure/). Video: [YouTube — narrated Quest demonstration](https://youtu.be/vSC8ISrWH2g).
 
 ## States and detection
 
@@ -48,7 +48,7 @@ The alarm moves only down its station's local Y axis and stays latched at its st
 - A classroom interaction exercise, not certification or a substitute for workplace instruction. USFA advises evacuation if safety prerequisites are uncertain.
 - This scenario assumes a small contained fire, safe air, a clear escape route and a trained user. These conditions are disclosed, not claimed to have been assessed merely by looking around. There is no actual phone network, alarm network or energized electrical system. No arbitrary electrical disconnection step is added.
 - Release/observe/back-away guidance appears at completion but is not counted as another task. There is no modeled re-ignition or emergency certification.
-- Headset manipulation/performance checks and the personal video are pending. Controller pointing conventions must be verified on a Quest.
+- The student supplied the linked October 8 Quest/controller recording with live-action footage throughout and prerecorded narration. Controller operation is shown in the footage; sustained headset refresh-rate performance has not been independently measured. The student's requested start-to-start video alignment is approximate.
 - A reported Quest pickup bug was traced to checking the tank's bottom origin instead of its handle, and allowing inactive nested parts to steal the grab. Regression tests cover the real grab/attach/release methods, both hands, part availability, rotated/recentered workspaces and pointer target resolution. Browser completion is tested separately; neither substitutes for a physical Quest retest.
 
 ## Video proof (about 5 minutes)

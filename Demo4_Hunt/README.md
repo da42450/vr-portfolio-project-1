@@ -13,7 +13,7 @@ A 26.6 m wide, four-region warehouse with Receiving, Tools, Parts, and Shipping 
 - Left X: open the in-world settings menu. The dispatch landmark also opens it.
 - Desktop: WASD in smooth mode; floor click in teleport mode; drag empty background to look; Q/E turn; click stock to collect. M opens settings, L switches travel, R resets the hunt.
 
-Deployment: [GitHub Pages / WebXR](https://da42450.github.io/vr-portfolio-project-1/Demo4_Hunt/). Video: **pending your YouTube link**.
+Deployment: [GitHub Pages / WebXR](https://da42450.github.io/vr-portfolio-project-1/Demo4_Hunt/). Video: [YouTube — narrated Quest demonstration](https://youtu.be/hUUlV8C-KY8).
 
 ## Implementation and comfort
 
@@ -52,7 +52,7 @@ Shared shelf geometry/materials, no dynamic shadows, a bounded world and a small
 - All world assets are original procedural geometry. IDs, map size, speed presets, score and timer rules are authored design values.
 - Physical room-scale walking can enter a virtual wall; the collision bounds constrain artificial movement, not the user's real body. Quest's boundary still applies.
 - Desktop teleport is an inspection control; the Quest uses the curved controller ray and floor marker. The floor is flat.
-- On-device controller bindings, stereo vignette, teleport fade, height reset, and sustained headset frame rate must be checked before recording. The personal video remains pending.
+- The student supplied the linked October 8 Quest recording, prerecorded narration and live-action footage, displayed together throughout. The editor checked decoding and representative frames, not every feature or a sustained headset benchmark. The start-to-start alignment is approximate as requested; the final part of the source recording includes Quest passthrough rather than the immersive application.
 
 ## Video proof (about 5 minutes)
 

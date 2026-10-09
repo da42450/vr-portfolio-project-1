@@ -1,5 +1,7 @@
 # Portfolio audit — October 8, 2026
 
+**Historical pre-recording audit:** the findings below describe the earlier October 8 state. The later submission includes the student's headshot, declared GPT-6.1 Sol inventory and recorded demonstrations. See [SUBMISSION.md](SUBMISSION.md) and the root README for the final links and delivery checks. Earlier "pending" items are not blanket certification that the later recordings prove every rubric criterion; performance/physical-test limitations remain explicit.
+
 Scope: CSCI 4830 undergraduate; professor's [current assignment](https://vr26.vn.ugavel.com/PortfolioProject1/), all four demos' source and READMEs, existing Unity validation/build records, public deployment, release assets, repository history and automated tests. This is an evidence audit, not a grade guarantee.
 
 ## Verdict
